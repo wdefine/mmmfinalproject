@@ -1,66 +1,73 @@
-let canvas = document.getElementById("myCanvas");
-let ctx = canvas.getContext("2d");
+const COLLISIONVELOCITYCONSTANT = true;
 
-let objArray = [];
-let paused = false;
-
-
-let lastTime = (new Date()).getTime();
-let currentTime = 0;
-let dt = 0;
-
-let numStartingBalls = 100;
-let numSickBalls     = 1;
-
-document.addEventListener("keydown", keyDownHandler);
-
-function keyDownHandler(event) {
-    if (event.keyCode == 67) { // c
-        objArray[objArray.length] = new Ball(randomX(), randomY(), 3);
-    } else if (event.keyCode == 80) { // p
-        paused = !paused;
-    } else if (event.keyCode == 82) { // r
-        objArray = [];
-        initBalls();
+function randomX(canvas) {
+    let x = Math.floor(Math.random() * canvas.width);
+    if (x < 3) {
+        x = 3;
+    } else if (x + 3 > canvas.width) {
+        x = canvas.width - 3;
     }
+    return x;
 }
 
-function clearCanvas() {
+function randomY(canvas) {
+    let y = Math.floor(Math.random() * canvas.height);
+    if (y < 3) {
+        y = 3;
+    } else if (y + 3 > canvas.height) {
+        y = canvas.height - 3;
+    }
+    return y;
+}
+
+function distanceNextFrame(a, b) {
+    return Math.sqrt((a.x + a.dx - b.x - b.dx)**2 + (a.y + a.dy - b.y - b.dy)**2) - a.radius - b.radius;
+}
+
+function distance(a, b) {
+    return Math.sqrt((a.x - b.x)**2 + (a.y - b.y)**2);
+}
+
+function clearCanvas(ctx, canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     canvas.style.backgroundColor = "rgb(255, 255, 255)";
 }
 
-function wallCollision(ball) {
-    if (ball.x - ball.radius + ball.dx < 0 ||
-        ball.x + ball.radius + ball.dx > canvas.width) {
-        ball.dx *= -1;
-    }
-    if (ball.y - ball.radius + ball.dy < 0 ||
-        ball.y + ball.radius + ball.dy > canvas.height) {
-        ball.dy *= -1;
-    }
-    if (ball.y + ball.radius > canvas.height) {
-        ball.y = canvas.height - ball.radius;
-    }
-    if (ball.y - ball.radius < 0) {
-        ball.y = ball.radius;
-    }
-    if (ball.x + ball.radius > canvas.width) {
-        ball.x = canvas.width - ball.radius;
-    }
-    if (ball.x - ball.radius < 0) {
-        ball.x = ball.radius;
-    }    
+function wallCollision(objArray, canvas) {
+    for(let i =0;i<objArray.length;i++){
+        ball = objArray[i];
+        if (ball.x - ball.radius + ball.dx < 0 ||
+            ball.x + ball.radius + ball.dx > canvas.width) {
+            ball.dx *= -1;
+        }
+        if (ball.y - ball.radius + ball.dy < 0 ||
+            ball.y + ball.radius + ball.dy > canvas.height) {
+            ball.dy *= -1;
+        }
+        if (ball.y + ball.radius > canvas.height) {
+            ball.y = canvas.height - ball.radius;
+        }
+        if (ball.y - ball.radius < 0) {
+            ball.y = ball.radius;
+        }
+        if (ball.x + ball.radius > canvas.width) {
+            ball.x = canvas.width - ball.radius;
+        }
+        if (ball.x - ball.radius < 0) {
+            ball.x = ball.radius;
+        } 
+    }   
 }
 
-function ballCollision() {
+function ballCollision(objArray) {
+    let collisions = []
     for (let i=0; i<objArray.length-1; i++) {
         for (let j=i+1; j<objArray.length; j++) {
             let ob1 = objArray[i]
             let ob2 = objArray[j]
             let dist = distance(ob1, ob2)
 
-            if (dist < ob1.radius + ob2.radius) {              
+            if (dist < ob1.radius + ob2.radius) { 
                 let theta1 = ob1.angle();
                 let theta2 = ob2.angle();
                 let phi = Math.atan2(ob2.y - ob1.y, ob2.x - ob1.x);
@@ -78,16 +85,27 @@ function ballCollision() {
                 ob1.dy = dy1F;                
                 ob2.dx = dx2F;                
                 ob2.dy = dy2F;
+
+                if(COLLISIONVELOCITYCONSTANT)
+                {
+                    let angle1 = ob1.angle();
+                    let angle2 = ob2.angle();
+                    ob1.dx = v1 * Math.cos(angle1);
+                    ob1.dy = v1 * Math.sin(angle1);
+                    ob2.dx = v2 * Math.cos(angle2);
+                    ob2.dy = v2 * Math.sin(angle2);
+                }
+
           
                 staticCollision(ob1, ob2)
+
+                collisions.push([ob1, ob2])
                 
             }            
         }
-        wallCollision(objArray[i]);
     }
-
-    if (objArray.length > 0)
-        wallCollision(objArray[objArray.length-1])
+    
+    return collisions;
 }
 
 function staticCollision(ob1, ob2, emergency=false)
@@ -113,16 +131,9 @@ function staticCollision(ob1, ob2, emergency=false)
         // so if we have already run one emergency round; just ignore the problem.
         if (!emergency) staticCollision(ob1, ob2, true)
     }
-
-    //EPIDEMIOLOGY
-    if(ob1.sick() || ob2.sick())
-    {
-        ob1.infect();
-        ob2.infect();
-    }
 }
 
-function moveObjects() {
+function moveObjects(objArray, dt) {
     for (let i=0; i<objArray.length; i++) {
         let ob = objArray[i];
         ob.x += ob.dx * dt;
@@ -130,51 +141,8 @@ function moveObjects() {
     }    
 }
 
-function drawObjects() {
+function drawObjects(objArray, ctx) {
     for (let obj in objArray) {
-        objArray[obj].draw();
+        objArray[obj].draw(ctx);
     }
 }
-
-function recover(){
-    for(i=0;i<objArray.length;i++){
-        objArray[i].recover();
-    }
-}
-
-function draw() {
-    currentTime = (new Date()).getTime();
-    dt = (currentTime - lastTime) / 1000; // delta time in seconds
-    
-    // dirty and lazy solution
-    // instead of scaling up every velocity vector the program
-    // we increase the speed of time
-    dt *= 50;
-
-    clearCanvas();
-
-    recover();
-    
-    if (!paused) {
-        moveObjects();
-        ballCollision();
-    }
-    
-    drawObjects();
-    
-    lastTime = currentTime;
-    window.requestAnimationFrame(draw);
-}
-
-function initBalls(){
-    for (i = 0; i<numStartingBalls; i++) {
-        objArray[objArray.length] = new Ball(randomX(), randomY(), 3);
-    }
-
-    //EPIDEMIOLOGY
-    let sickBall = Math.round(Math.random()*numStartingBalls)
-    objArray[sickBall].infect();
-}
-
-initBalls()
-draw();

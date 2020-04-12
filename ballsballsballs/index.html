@@ -45,31 +45,18 @@
   <section>
     <div id="title"><p id="balls" style="font-size: 15pt">2d collisions</p><br/></div>
   </section>
+
   <div>
     <canvas id="myCanvas" width="600" height="600" style="border:1px solid black;"></canvas>
-    <script src="ball.js"></script>
-    <script src="util.js"></script>
-    <script src="script.js"></script>
   </div>
-  <section class="footer">
+  
+  <div>
+    <canvas id="myCanvas2" width="600" height="600" style="border:1px solid black;"></canvas>
+  </div>
 
-    <p>
-      <strong>[C]</strong> to spawn more balls<br>
-      <strong>[P]</strong>: pause/unpause || <strong>[R]</strong>: [RESET]
-    </p>
-
-    <p>
-      <a href="https://github.com/miskimit/miskimit.github.io/tree/master/ballsballsballs">source code on github</a>
-    </p>
-
-    <div id="disclaimer" align="center" style="word-break: break-word; width: 600px; display:inline-block;">
-
-      <p>
-        Make sure to press a few buttons and play around.<br>Made with pure javascript.
-      </p>
-
-    </div>
-
-  </section>
+  <!--Place these scripts at end-->
+  <script src="ball.js"></script>
+  <script src="physics.js"></script>
+  <script src="simulation.js"></script>
 </body>
 </html>
