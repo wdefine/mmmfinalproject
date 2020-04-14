@@ -1,0 +1,20 @@
+{
+  "name": "mmmfinalproject",
+  "homepage": "https://github.com/wdefine/mmmfinalproject",
+  "authors": [
+    "Will Define <wjd6ca@virginia.edu>"
+  ],
+  "description": "Interactive covid19 sim",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "chartist": "^0.11.4"
+  }
+}

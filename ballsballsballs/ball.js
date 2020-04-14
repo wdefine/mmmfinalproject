@@ -1,5 +1,5 @@
 //EPIDEMIOLOGY MACROS
-const BALLSPEED = 4;
+const BALLSPEED = 6;
 const BALLRADIUS = 3;
 class Ball {
     
@@ -24,19 +24,35 @@ class Ball {
         this.maxCollisionMemory = 25
         this.collisionIndex = 0
         this.collisionHistory = [];
-    };   
+    }; 
+    
+    getStatus()
+    {
+        if(this.status == 0)
+        {
+            return "s"
+        }
+        else if(this.status == 1 || this.status == 2)
+        {
+            return "i"
+        }
+        else if(this.status == 3)
+        {
+            return "r"
+        }
+    }
 
     sick(){
         return this.status == 1 || this.status == 2;
     }
     
-    collide(other, time){
+    collide(other, time, transmission){
         let collisionInfo = {"ball":other.id, "meInfectious": this.sick(), "themInfectious": other.sick(), "time": time}
         this.collisionHistory[this.collisionIndex % this.maxCollisionMemory] = collisionInfo;
         this.collisionIndex += 1;
-        if(this.status == 0 && other.sick()){
+        if(this.status == 0 && other.sick() && transmission){
             this.infectionStart = time;
-            this.status = 2; //make this 2 when we include testing patients!
+            this.status = 2;
         }
     }
 
@@ -58,6 +74,7 @@ class Ball {
     }
 
     socialDistance(percentCompliance){
+        console.log(this.socialDistancingWillingness, percentCompliance);
         if(this.socialDistancingWillingness < percentCompliance){
             this.dx /= 1000;
             this.dy /= 1000;
