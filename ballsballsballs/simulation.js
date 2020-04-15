@@ -46,10 +46,10 @@ class Simulation {
     //chart updates chart
     chart() {
         let divisor = 10;
-        new Chartist.Line("#" + this.chartID, {
+        let c = Chartist.Line("#" + this.chartID, {
             //labels:[this.chartingInfo.l],
             series: [
-              {name: "Susceptible", data: this.chartingInfo.s},
+              {name: "Susceptible", data: this.chartingInfo.s, color:"lightblue"},
               {name: "Infected", data: this.chartingInfo.i},
               {name: "Removed", data: this.chartingInfo.r}
             ]
