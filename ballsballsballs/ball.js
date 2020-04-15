@@ -1,5 +1,5 @@
 //EPIDEMIOLOGY MACROS
-const BALLSPEED = 6;
+const BALLSPEED = 10;
 const BALLRADIUS = 3;
 class Ball {
     
@@ -74,7 +74,6 @@ class Ball {
     }
 
     socialDistance(percentCompliance){
-        console.log(this.socialDistancingWillingness, percentCompliance);
         if(this.socialDistancingWillingness < percentCompliance){
             this.dx /= 1000;
             this.dy /= 1000;

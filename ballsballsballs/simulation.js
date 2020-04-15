@@ -1,30 +1,21 @@
 class Simulation {
     constructor(simConfig){
-        this.canvasID = simConfig.canvasID;
-        this.chartID = simConfig.chartID;
-        this.resetID = simConfig.resetID;
-        this.updateFunction = simConfig.update;
+        this.simID = simConfig.simID;
+        let sim = document.getElementById(this.simID);
+        this.canvasID = sim.querySelector('.canvas').id;
+        this.chartID = sim.querySelector('.chart').id;
+        this.canvas = document.getElementById(this.canvasID);
+        this.ctx = this.canvas.getContext("2d");
+
         this.socialDistanceCompliance = simConfig.socialDistanceCompliance;
         this.recoverTime = simConfig.recoverTime;
         this.infectionRate = simConfig.infectionRate;
-
-        //initialize reset/pause features
-        var self = this;
-        this.canvas = document.getElementById(this.canvasID);
-        this.ctx = this.canvas.getContext("2d");
-        this.canvas.onclick = () => {
-            playSimulation(self.canvasID);
-        }
-
-        this.resetBtn = document.getElementById(this.resetID);
-        this.resetBtn.onclick = () => {
-            self.reset();
-        }
 
         //initialize time
         this.time = 0;
         this.dt = 0;
         this.paused = true;
+        this.done = false;
 
         //initialize balls
         this.objArray = [];
@@ -43,20 +34,16 @@ class Simulation {
         //initialize canvas
         clearCanvas(this.ctx, this.canvas);
         drawObjects(this.objArray, this.ctx);
+        this.graph();
     }
 
     //draw advances the simulation and updates the canvas
     draw() {
-        if(this.paused)
-        {
-            return;
-        }
        this.time += 10;
        this.dt = 50* 10/1000
 
         clearCanvas(this.ctx, this.canvas);
 
-        this.updateFunction(this);
         this.recover();
         this.socialDistance();
 
@@ -132,6 +119,7 @@ class Simulation {
         }
         if(infected == 0){
             this.paused = true; //simulation is over
+            this.done = true;
         }
         this.chartingInfo.s.push(susceptible);
         this.chartingInfo.i.push(infected);
@@ -146,17 +134,17 @@ class Simulation {
         for(let i = 0;i<this.startingSickBalls;i++){
             this.objArray[i].status = 2;//infect
             this.objArray[i].infectionStart = 0;
-            this.objArray[i].socialDistancingWillingness = 2; //will not socially distance
+            this.objArray[i].socialDistancingWillingness = 1; //will not socially distance
         }
     }
 
     reset(){
-        console.log("reset!")
         this.objArray = [];
         this.paused = true;
         this.lastTime = (new Date()).getTime();
         this.currentTime = 0;
         this.time = 0;
+        this.done = false;
         this.dt = 0;
         this.initBalls();
         this.chartingInfo = {
@@ -167,6 +155,7 @@ class Simulation {
         }
         clearCanvas(this.ctx, this.canvas);
         drawObjects(this.objArray, this.ctx);
+        this.graph();
     }
 
     //handles epidemiology of ball collision
@@ -196,79 +185,122 @@ class Simulation {
     }
 }
 
-let simConfigs = [
-    {
-        canvasID: "canvas1",
-        chartID: "chart1",
-        resetID: "reset1",
-        update: () => {
-            //if you want this simulation to do something extra
-            return;
-        },
-        sliders:[
-
-        ],
-        infectionRate:0.8,
-        socialDistanceCompliance:0,
-        recoverTime:1000,
-    },
-    {
-        canvasID: "canvas2",
-        chartID: "chart2",
-        resetID: "reset2",
-        update: () => {
-            //if you want this simulation to do something extra
-            return;
-        },
-        sliders:[
-
-        ],
-        infectionRate:0.25,
-        socialDistanceCompliance:0,
-        recoverTime:1000,
-    },
-    {
-        canvasID: "canvas3",
-        chartID: "chart3",
-        resetID: "reset3",
-        update: () => {
-            //if you want this simulation to do something extra
-            return;
-        },
-        sliders:[
-
-        ],
-        infectionRate:0.8,
-        socialDistanceCompliance:0.8,
-        recoverTime:1000,
-    }
-];
-
 let sims = [];
 window.addEventListener('DOMContentLoaded', (event) => {
+    let simConfigs = [];
+    let simElements = document.getElementsByClassName('sim');
+    for(let i=0;i<simElements.length;i++)
+    {
+        simConfigs.push({
+            simID: simElements[i].id,
+            socialDistanceCompliance: parseFloat(simElements[i].querySelector(".sd").value),
+            infectionRate: parseFloat(simElements[i].querySelector(".ir").value),
+            recoverTime:600,
+        })
+    }
+    console.log(simConfigs);
     for(let i=0;i<simConfigs.length;i++){
         sims.push(new Simulation(simConfigs[i]))
     }
 });
 
 var interval = setInterval(function(){
-    if(onTab){
-        for(let i =0;i<sims.length;i++){
+    for(let i =0;i<sims.length;i++){
+        if(!sims[i].paused)
+        {
             sims[i].draw();
         }
     }
-}, 30);
+}, 50);
 
-
-//used for playing/pausing animations
-function playSimulation(id){
-    onTab = true;
-    for(let i =0;i<sims.length;i++){
-        if(sims[i].canvasID != id){
-            sims[i].paused = true;
+function updateSocialDistance(event)
+{
+    if (!event) {
+        event = window.event;
+    };
+    let e = (event.target || event.srcElement)
+    let pid = e.parentNode.parentNode.id;
+    let sim = null;
+    for(let i=0;i<sims.length;i++)
+    {
+        if(sims[i].simID === pid)
+        {
+            sim = sims[i];
         }
-        else{
-            sims[i].paused = !sims[i].paused;
+    }
+    if(sim)
+    {
+        sim.socialDistanceCompliance = e.value;
+    }
+}
+
+function updateInfectionRate(event)
+{
+    if (!event) {
+        event = window.event;
+    };
+    let e = (event.target || event.srcElement)
+    let pid = e.parentNode.parentNode.id;
+    let sim = null;
+    for(let i=0;i<sims.length;i++)
+    {
+        if(sims[i].simID === pid)
+        {
+            sim = sims[i];
+        }
+    }
+    if(sim)
+    {
+        sim.infectionRate = e.value;
+    }
+}
+
+function reset(event)
+{
+    if (!event) {
+        event = window.event;
+    };
+    let e = (event.target || event.srcElement)
+    let pid = e.parentNode.parentNode.id;
+    let sim = null;
+    for(let i=0;i<sims.length;i++)
+    {
+        if(sims[i].simID === pid)
+        {
+            sim = sims[i];
+        }
+    }
+    if(sim)
+    {
+        sim.reset();
+    }
+}
+
+function pause(event)
+{
+    if (!event) {
+        event = window.event;
+    };
+    let e = (event.target || event.srcElement)
+    let pid = e.parentNode.parentNode.id;
+    let sim = null;
+    for(let i=0;i<sims.length;i++)
+    {
+        if(sims[i].simID === pid)
+        {
+            sim = sims[i];
+        }
+    }
+    if(sim)
+    {
+        for(let i =0;i<sims.length;i++){
+            if(sims[i] != sim){
+                sims[i].paused = true;
+            }
+        }
+        if(!sim.done)
+        {
+            sim.paused = !sim.paused;
         }
     }
 }
