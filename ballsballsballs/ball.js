@@ -1,9 +1,9 @@
 //EPIDEMIOLOGY MACROS
-const BALLSPEED = 10;
 const BALLRADIUS = 3;
 class Ball {
     
-    constructor(x, y, id){
+    constructor(x, y, id, ballSpeed){
+        this.ballSpeed = ballSpeed;
         this.radius = BALLRADIUS;
         this.x = x;
         this.y = y;
@@ -11,22 +11,25 @@ class Ball {
         this.id = id;//ball id is index in objArray
     
         let angle = Math.random() * 2 * Math.PI; 
-        this.dx = BALLSPEED * Math.cos(angle);
-        this.dy = BALLSPEED * Math.sin(angle);  
+        this.dx = this.ballSpeed * Math.cos(angle);
+        this.dy = this.ballSpeed * Math.sin(angle);  
         
         this.socialDistancingWillingness = Math.random();
+        this.showsSymptoms = Math.random();
 
         // mass is that of a sphere as opposed to circle
         // it *does* make a difference in how realistic it looks
         this.mass = this.radius * this.radius * this.radius;
 
-        this.status = 0; //0=helathy, 1=tested sick, 2=untested sick, 3=recovered
+        this.status = 0; //0=helathy, 1=sick+symptomatic, 2=sick+unsymptomatic, 3=recovered
         this.maxCollisionMemory = 25
         this.collisionIndex = 0
         this.collisionHistory = [];
+
+        this.ghostMode = false;
     }; 
     
-    getStatus()
+    getSIRStatus()
     {
         if(this.status == 0)
         {
@@ -46,12 +49,23 @@ class Ball {
         return this.status == 1 || this.status == 2;
     }
     
-    collide(other, time, transmission){
+    collide(other, time, transmission, symptomatic){
         let collisionInfo = {"ball":other.id, "meInfectious": this.sick(), "themInfectious": other.sick(), "time": time}
         this.collisionHistory[this.collisionIndex % this.maxCollisionMemory] = collisionInfo;
         this.collisionIndex += 1;
         if(this.status == 0 && other.sick() && transmission){
-            this.infectionStart = time;
+            this.getSick(time, symptomatic);
+        }
+    }
+
+    getSick(time, symptomatic)
+    {
+        this.infectionStart = time;
+        if(this.showsSymptoms < symptomatic)
+        {
+            this.status = 1;
+        }
+        else{
             this.status = 2;
         }
     }
@@ -80,8 +94,8 @@ class Ball {
         }
         else{
             let angle1 = this.angle();
-            this.dx = BALLSPEED * Math.cos(angle1);
-            this.dy = BALLSPEED * Math.sin(angle1);
+            this.dx = this.ballSpeed * Math.cos(angle1);
+            this.dy = this.ballSpeed * Math.sin(angle1);
         }
     }
 

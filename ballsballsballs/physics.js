@@ -2,20 +2,20 @@ const COLLISIONVELOCITYCONSTANT = true;
 
 function randomX(canvas) {
     let x = Math.floor(Math.random() * canvas.width);
-    if (x < 3) {
-        x = 3;
-    } else if (x + 3 > canvas.width) {
-        x = canvas.width - 3;
+    if (x < 10) {
+        x = 10;
+    } else if (x + 10 > canvas.width) {
+        x = canvas.width - 10;
     }
     return x;
 }
 
 function randomY(canvas) {
     let y = Math.floor(Math.random() * canvas.height);
-    if (y < 3) {
-        y = 3;
-    } else if (y + 3 > canvas.height) {
-        y = canvas.height - 3;
+    if (y < 10) {
+        y = 10;
+    } else if (y + 10 > canvas.height) {
+        y = canvas.height - 10;
     }
     return y;
 }
@@ -36,7 +36,7 @@ function clearCanvas(ctx, canvas) {
 function wallCollision(objArray, canvas) {
     for(let i =0;i<objArray.length;i++){
         ball = objArray[i];
-        if (ball.x - ball.radius + ball.dx < 0 ||
+        if (ball.x - ball.radius + ball.dx < 0||
             ball.x + ball.radius + ball.dx > canvas.width) {
             ball.dx *= -1;
         }
@@ -62,9 +62,16 @@ function wallCollision(objArray, canvas) {
 function ballCollision(objArray) {
     let collisions = []
     for (let i=0; i<objArray.length-1; i++) {
+        if( objArray[i].ghostMode)
+        {
+            continue;
+        }
         for (let j=i+1; j<objArray.length; j++) {
             let ob1 = objArray[i]
             let ob2 = objArray[j]
+            if(ob2.ghostMode){
+                continue;
+            }
             let dist = distance(ob1, ob2)
 
             if (dist < ob1.radius + ob2.radius) { 
