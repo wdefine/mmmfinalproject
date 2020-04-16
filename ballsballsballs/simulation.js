@@ -62,7 +62,6 @@ class Simulation {
         }
         this.transmitInfection(collisions); //transmit infection on collision
 
-        this.updateChartingInfo();//add sir+ info to 
     }
 
     clearCanvas() {
@@ -72,6 +71,7 @@ class Simulation {
 
     //chart updates chart
     chart() {
+        this.updateChartingInfo();//add sir+ info to 
         let divisor = 10;
         let c = Chartist.Line("#" + this.chartID, {
             //labels:[this.chartingInfo.l],
@@ -342,7 +342,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             symptomatic: parseFloat(simElements[i].querySelector(".sym").value),//0-1
             recoverTime:100,
             numStartingBalls: 400,//max = 500
-            startingSickBalls:1,//maybe keep this same?
+            startingSickBalls:3,//maybe keep this same?
             ballSpeed:12,
             numCommunities:1,//1 is min
             hasQuarantineBox:0,
@@ -353,6 +353,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
         })
     }
+    simConfigs[3].startingSickBalls =1;
     simConfigs[3].numCommunities = 4;
     for(let i=0;i<simConfigs.length;i++){
         sims.push(new Simulation(simConfigs[i]))
