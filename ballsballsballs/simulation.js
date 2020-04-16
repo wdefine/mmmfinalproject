@@ -23,13 +23,28 @@ class Simulation {
         this.switchCommunityRate = simConfig.switchCommunityRate;
 
         this.reset();
+
+        this.canvases = []
+    }
+
+    drawCanvas()
+    {
+        this.clearCanvas(this.ctx, this.canvas);
+        //draw boxes
+        for(let i=0;i<this.boxArray.length;i++)
+        {
+            this.boxArray[i].drawBox();//draw boxes on canvas
+        }
+        //draw balls
+        for (let obj in this.ballArray) {
+            this.ballArray[obj].draw(this.ctx);
+        }
+        //this.chart();
     }
 
     //draw advances the simulation and updates the canvas
-    drawCanvas() {
+    simLoop() {
         this.time += 1;
-
-        this.clearCanvas(this.ctx, this.canvas);
 
         this.recover(); //set balls who have recoved as recovered
         this.socialDistance(); //force balls to socially distance
@@ -44,17 +59,10 @@ class Simulation {
             this.boxArray[i].moveBalls(this.time);
             this.boxArray[i].wallCollisions();
             collisions = collisions.concat(this.boxArray[i].ballCollisions());
-            this.boxArray[i].drawBox();//draw boxes on canvas
         }
         this.transmitInfection(collisions); //transmit infection on collision
 
-        //draw balls
-        for (let obj in this.ballArray) {
-            this.ballArray[obj].draw(this.ctx);
-        }
-
         this.updateChartingInfo();//add sir+ info to 
-        this.chart();
     }
 
     clearCanvas() {
@@ -333,7 +341,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             infectionRate: parseFloat(simElements[i].querySelector(".ir").value),//0-1
             symptomatic: parseFloat(simElements[i].querySelector(".sym").value),//0-1
             recoverTime:100,
-            numStartingBalls: 300,//max = 500
+            numStartingBalls: 400,//max = 500
             startingSickBalls:1,//maybe keep this same?
             ballSpeed:12,
             numCommunities:1,//1 is min
@@ -349,18 +357,37 @@ window.addEventListener('DOMContentLoaded', (event) => {
     for(let i=0;i<simConfigs.length;i++){
         sims.push(new Simulation(simConfigs[i]))
     }
+    window.requestAnimationFrame(step);
 });
+
+let global_counter = 0
+function step()
+{
+    for(let i =0;i<sims.length;i++){
+        if(!sims[i].paused)
+        {
+            sims[i].drawCanvas();
+            if(global_counter % 10 == 0)
+            {
+                sims[i].chart();
+            }
+            break;//if multiple sims are unpaused, this makes first sim run, others are effectively paused
+        }
+    }
+    global_counter += 1;
+    window.requestAnimationFrame(step);
+}
 
 //here is the loop that controls page
 var interval = setInterval(function(){
     for(let i =0;i<sims.length;i++){
         if(!sims[i].paused)
         {
-            sims[i].drawCanvas();
+            sims[i].simLoop();
             break;//if multiple sims are unpaused, this makes first sim run, others are effectively paused
         }
     }
-}, 40);
+}, 60);
 
 //functions for handling changes to values
 function simAndTargetFromEvent(event)
