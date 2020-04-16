@@ -27,18 +27,21 @@ class Simulation {
 
     //draw advances the simulation and updates the canvas
     drawCanvas() {
-       this.time += 1;
+        this.time += 1;
 
         this.clearCanvas(this.ctx, this.canvas);
 
         this.recover(); //set balls who have recoved as recovered
         this.socialDistance(); //force balls to socially distance
-        this.switchCommunities();
+        if(this.numCommunities > 1)
+        {
+            this.switchCommunities();
+        }
     
         let collisions = [];
         for(let i=0;i<this.boxArray.length;i++)
         {
-            this.boxArray[i].moveBalls(time);
+            this.boxArray[i].moveBalls(this.time);
             this.boxArray[i].wallCollisions();
             collisions = collisions.concat(this.boxArray[i].ballCollisions());
             this.boxArray[i].drawBox();//draw boxes on canvas
@@ -139,7 +142,9 @@ class Simulation {
                 this.boxQuarantine = new Box(quarantineBoxPoints, this.ctx, "red", 2);
             }
         }
-        let boxPoints = splitBoxesEvenly(this.numCommunities, this.canvas.width - 100*sideBoxes, this.canvas.height, 100, 0);
+        let width = sideBoxes ? this.canvas.width - 100 : this.canvas.width;
+        let xOffset = sideBoxes ? 100 : 0;
+        let boxPoints = splitBoxesEvenly(this.numCommunities, width, this.canvas.height, xOffset, 0);
         let ballsPerBox = Math.floor(this.numStartingBalls/this.numCommunities);
         for(let i=0;i<this.numCommunities;i++)
         {
@@ -172,7 +177,15 @@ class Simulation {
         this.boxMarket = null;
         this.boxQuarantine = null;
         this.initBallsBoxes();
-        this.boxArray = this.boxCommunities.concat([this.boxMarket]).concat([this.boxQuarantine]);
+        this.boxArray = this.boxCommunities;
+        if(this.hasMarketBox)
+        {
+            this.boxArray.push(this.boxMarket);
+        }
+        if(this.hasQuarantineBox)
+        {
+            this.boxArray.push(this.boxQuarantine);
+        }
 
         //init canvas
         this.clearCanvas(this.ctx, this.canvas);
@@ -247,6 +260,10 @@ class Simulation {
         }
         for(let i=0;i<newcomers.length;i++)
         {
+            for(let j=0;j<newcomers[i].length;j++)
+            {
+                newcomers[i][j].ghostTo(this.boxCommunities[i].randomX(), this.boxCommunities[i].randomY());
+            }
             this.boxCommunities[i].addNewBalls(newcomers[i]);
         }
     }
@@ -315,19 +332,20 @@ window.addEventListener('DOMContentLoaded', (event) => {
             socialDistanceCompliance: parseFloat(simElements[i].querySelector(".sd").value), //0-1
             infectionRate: parseFloat(simElements[i].querySelector(".ir").value),//0-1
             symptomatic: parseFloat(simElements[i].querySelector(".sym").value),//0-1
-            recoverTime:60,
-            numStartingBalls: 500,//max = 500
+            recoverTime:100,
+            numStartingBalls: 300,//max = 500
             startingSickBalls:1,//maybe keep this same?
-            ballSpeed:10,
-            numCommunities:4,//1 is min
-            hasQuarantineBox:1,
-            hasMarketBox:1,
-            switchCommunityRate:0.01,
+            ballSpeed:12,
+            numCommunities:1,//1 is min
+            hasQuarantineBox:0,
+            hasMarketBox:0,
+            switchCommunityRate:0.003,
             goToMarketFrequency:0.01,
             goToMarketDuration:10,
 
         })
     }
+    simConfigs[3].numCommunities = 4;
     for(let i=0;i<simConfigs.length;i++){
         sims.push(new Simulation(simConfigs[i]))
     }

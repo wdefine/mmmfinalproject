@@ -34,11 +34,20 @@ class Box {
         this.ballArray = [];
     }
 
+    randomX()
+    {
+        return this.x1 + 10 + Math.floor(Math.random() * (this.x2-this.x1 - 20))
+    }
+    randomY()
+    {
+        return this.y1 + 10 + Math.floor(Math.random() * (this.y2-this.y1 - 20))
+    }
+
     createBallInBox(id, ballSpeed)
     {
-        let x = this.x1 + 10 + Math.floor(Math.random() * (this.x2-this.x1 - 20));
-        let y = this.y1 + 10 + Math.floor(Math.random() * (this.y2-this.y1 - 20));
-        let ball = new Ball(x, y, id, ballSpeed);
+        let x = this.randomX();
+        let y = this.randomY();
+        let ball = new Ball(x, y, id, ballSpeed, this);
         this.ballArray.push(ball);
         return ball;
     }
@@ -50,7 +59,7 @@ class Box {
         for(let i=this.ballArray.length-1;i>=0;i--)
         {
             let ball = this.ballArray[i];
-            if(!ball.socialDIstancing && Math.random() < switchRate && ball.ghostFuture == false)
+            if(!ball.socialDistancing && Math.random() < switchRate && ball.ghostFuture == false && ball.ghostMode == false)
             {
                 leavers.push(ball);
             }
@@ -62,11 +71,26 @@ class Box {
         return leavers;
     }
 
+    removeBall(ball)
+    {
+        let index = null;
+        for(let i=0;i<this.ballArray.length;i++)
+        {
+            if(this.ballArray[i].id == ball.id)
+            {
+                index = i;
+                break;
+            }
+        }
+        this.ballArray.splice(index, 1);
+    }
+
     addNewBalls(newcomers)
     {
         for(let i=0;i<newcomers.length;i++)
         {
             this.ballArray.push(newcomers[i]);
+            this.ballArray[this.ballArray.length-1].box = this;
         }
     }
 

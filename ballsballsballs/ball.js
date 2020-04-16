@@ -3,7 +3,7 @@ const BALLRADIUS = 3;
 const dt = 50* 10/1000;
 class Ball {
     
-    constructor(x, y, id, ballSpeed){
+    constructor(x, y, id, ballSpeed, box){
         this.ballSpeed = ballSpeed;
         this.radius = BALLRADIUS;
         this.x = x;
@@ -28,50 +28,67 @@ class Ball {
         this.collisionIndex = 0
         this.collisionHistory = [];
 
+        this.box = null;
         this.ghostMode = false;
         this.ghostToX  = null;
         this.ghostToY  = null;
+        this.ghostTurns = 0;
         this.ghostFuture = false;
         this.ghostReturn = null;
         this.ghostEndTime = null;
+        this.ghostReturnBox = null;
     }; 
 
-    ghostTo(x, y, returnHome=false, time=20)
+    ghostTo(x, y, returnHome=false, time=20, oldBox=null)
     {
-        this.ghostTime = true;
+        this.ghostMode = true;
         this.ghostToX = x;
         this.ghostToY = y;
+        this.ghostTurns = Math.floor(Math.sqrt((this.x - x)**2 + (this.y - y)**2) / (dt*this.ballSpeed));
+        this.ghostReturn = [this.x, this.y];
+        this.ghostEndTime = time;
+        this.ghostReturnBox = oldBox;
         if(returnHome)
         {
             this.ghostFuture = true;
-            this.ghostReturn = [this.x, this.y];
-            this.ghostEndTime = time;
         }
         let angle = Math.atan2(y-this.y, x-this.x);
-        this.dx = 3 * this.ballSpeed * Math.cos(angle);
-        this.dy = 3 * this.ballSpeed * Math.sin(angle);  
+        this.dx = this.ballSpeed * Math.cos(angle);
+        this.dy = this.ballSpeed * Math.sin(angle);  
     }
 
     move(time){
         if(this.ghostMode)
         {
-            //move towards ghost point
-            if(this.dx * dt > Math.abs(this.x - this.ghostToX))
+            if(this.ghostTurns > 0)
             {
-                this.x = this.ghostToX;
-                this.y = this.ghostToY;
+                this.x += this.dx * dt;
+                this.y += this.dy * dt;
+                this.ghostTurns -=1;
+            }
+            else{
                 let angle = Math.random() * 2 * Math.PI; 
                 this.dx = this.ballSpeed * Math.cos(angle);
                 this.dy = this.ballSpeed * Math.sin(angle); 
                 this.ghostMode = false; 
             }
-            else
-            {
-                this.x += this.dx * dt;
-                this.y += this.dy * dt;
-            }
         }
-        else if (this.ghostFuture && IAMHEREEEEEEE){}
+        else if (this.ghostFuture && this.ghostEndTime < time)
+        {
+            this.ghostMode = true;
+            this.ghostFuture = false;
+            this.ghostToX = this.ghostReturn[0];
+            this.ghostToY = this.ghostReturn[1];
+            this.ghostReturn = null;
+            this.ghostEndTime = null;
+            this.box.removeBall(this);
+            this.ghostReturnBox.addNewBalls([this]);
+            this.ghostReturnBox = null;
+        }
+        else{
+            this.x += this.dx * dt;
+            this.y += this.dy * dt;
+        }
     }
     
     getSIRStatus()
@@ -149,7 +166,7 @@ class Ball {
     draw(ctx) {
         ctx.beginPath();
         ctx.arc(Math.round(this.x), Math.round(this.y), this.radius, 0, 2*Math.PI);
-        ctx.fillStyle = color(this.status);
+        ctx.fillStyle = this.color();
         ctx.fill();
         ctx.strokeStyle = 'rgba(0, 0, 0, 0.6)';
         ctx.stroke();
@@ -164,19 +181,19 @@ class Ball {
         // velocity's angle with the x axis
         return Math.atan2(this.dy, this.dx);
     };
-};
 
-function color(status){
-    if(status == 0){
-        return "lightblue";
+    color(){
+        if(this.status == 0){
+            return "lightblue";
+        }
+        if(this.status == 1){
+            return "red";
+        }
+        if(this.status == 2){
+            return "yellow";
+        }
+        else{
+            return "grey";
+        }
     }
-    if(status == 1){
-        return "red";
-    }
-    if(status == 2){
-        return "yellow";
-    }
-    else{
-        return "grey";
-    }
-}
+};
