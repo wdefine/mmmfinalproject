@@ -36,26 +36,80 @@ function clearCanvas(ctx, canvas) {
 function wallCollision(objArray, canvas) {
     for(let i =0;i<objArray.length;i++){
         ball = objArray[i];
-        if (ball.x - ball.radius + ball.dx < 0||
-            ball.x + ball.radius + ball.dx > canvas.width) {
-            ball.dx *= -1;
+        // x-cell 1, 4
+        if (ball.x > 0 && ball.x < canvas.width / 3) {
+            if (ball.x - ball.radius + ball.dx < 0|| 
+                ball.x + ball.radius + ball.dx > canvas.width / 3) {
+                ball.dx *= -1;
+            }
+
+            if (ball.x + ball.radius > canvas.width / 3) {
+                ball.x = canvas.width / 3 - ball.radius;
+            }
+            if (ball.x - ball.radius < 0) {
+                ball.x = ball.radius;
+            } 
         }
-        if (ball.y - ball.radius + ball.dy < 0 ||
-            ball.y + ball.radius + ball.dy > canvas.height) {
-            ball.dy *= -1;
+
+        // x-cell 2, 5
+        if (ball.x > canvas.width / 3 && ball.x < 2 * canvas.width / 3) {
+            if (ball.x - ball.radius + ball.dx < canvas.width / 3 || 
+                ball.x + ball.radius + ball.dx > 2 * canvas.width / 3) {
+                ball.dx *= -1;
+            }
+
+            if (ball.x + ball.radius > 2 * canvas.width / 3) {
+                ball.x = 2 * canvas.width / 3 - ball.radius;
+            }
+            if (ball.x - ball.radius < canvas.width / 3) {
+                ball.x = ball.radius;
+            } 
         }
-        if (ball.y + ball.radius > canvas.height) {
-            ball.y = canvas.height - ball.radius;
+
+        // x-cell 3, 6
+        if (ball.x > 2 * canvas.width / 3 && ball.x < canvas.width) {
+            if (ball.x - ball.radius + ball.dx < 2 * canvas.width / 3 || 
+                ball.x + ball.radius + ball.dx > canvas.width) {
+                ball.dx *= -1;
+            }
+
+            if (ball.x + ball.radius > canvas.width) {
+                ball.x = canvas.width - ball.radius;
+            }
+            if (ball.x - ball.radius < 2 * canvas.width / 3) {
+                ball.x = ball.radius;
+            } 
         }
-        if (ball.y - ball.radius < 0) {
-            ball.y = ball.radius;
+        
+        // y-cell 1, 2, 3
+        if (ball.y > 0 && ball.y < canvas.height / 2) {
+            if (ball.y - ball.radius + ball.dy < 0 ||
+                ball.y + ball.radius + ball.dy > canvas.height / 2) {
+                ball.dy *= -1;
+            }   
+
+            if (ball.y + ball.radius > canvas.height / 2) {
+                ball.y = canvas.height / 2 - ball.radius;
+            }
+            if (ball.y - ball.radius < 0) {
+                ball.y = ball.radius;
+            }
         }
-        if (ball.x + ball.radius > canvas.width) {
-            ball.x = canvas.width - ball.radius;
+
+        // y-cell 4, 5, 6
+        if (ball.y > canvas.height / 2 && ball.y < canvas.height) {
+            if (ball.y - ball.radius + ball.dy < canvas.height / 2 ||
+                ball.y + ball.radius + ball.dy > canvas.height) {
+                ball.dy *= -1;
+            }   
+
+            if (ball.y + ball.radius > canvas.height) {
+                ball.y = canvas.height - ball.radius;
+            }
+            if (ball.y - ball.radius < canvas.height / 2) {
+                ball.y = ball.radius;
+            }
         }
-        if (ball.x - ball.radius < 0) {
-            ball.x = ball.radius;
-        } 
     }   
 }
 
