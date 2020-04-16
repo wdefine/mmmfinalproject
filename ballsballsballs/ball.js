@@ -44,6 +44,7 @@ class Ball {
         this.ghostMode = true;
         this.ghostToX = x;
         this.ghostToY = y;
+        this.ballSpeed *= 3;
         this.ghostTurns = Math.floor(Math.sqrt((this.x - x)**2 + (this.y - y)**2) / (dt*this.ballSpeed));
         this.ghostReturn = [this.x, this.y];
         this.ghostEndTime = time;
@@ -67,6 +68,7 @@ class Ball {
                 this.ghostTurns -=1;
             }
             else{
+                this.ballSpeed /= 3;
                 let angle = Math.random() * 2 * Math.PI; 
                 this.dx = this.ballSpeed * Math.cos(angle);
                 this.dy = this.ballSpeed * Math.sin(angle); 
@@ -193,7 +195,7 @@ class Ball {
             return "yellow";
         }
         else{
-            return "grey";
+            return "green";
         }
     }
 };

@@ -347,14 +347,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
             numCommunities:1,//1 is min
             hasQuarantineBox:0,
             hasMarketBox:0,
-            switchCommunityRate:0.003,
+            switchCommunityRate:0.0015,
             goToMarketFrequency:0.01,
             goToMarketDuration:10,
 
         })
     }
-    simConfigs[3].startingSickBalls =1;
-    simConfigs[3].numCommunities = 4;
+    simConfigs[1].startingSickBalls =1;
+    simConfigs[1].numCommunities = 12;
     for(let i=0;i<simConfigs.length;i++){
         sims.push(new Simulation(simConfigs[i]))
     }
@@ -368,7 +368,7 @@ function step()
         if(!sims[i].paused)
         {
             sims[i].drawCanvas();
-            if(global_counter % 10 == 0)
+            if(global_counter % 15 == 0)
             {
                 sims[i].chart();
             }
