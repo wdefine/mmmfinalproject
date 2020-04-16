@@ -16,6 +16,7 @@ class Ball {
         this.dy = this.ballSpeed * Math.sin(angle);  
         
         this.socialDistancingWillingness = Math.random();
+        this.dieProbability = Math.random();
         this.socialDistancing = false;
         this.showsSymptoms = Math.random();
 
@@ -30,8 +31,6 @@ class Ball {
 
         this.box = null;
         this.ghostMode = false;
-        this.ghostToX  = null;
-        this.ghostToY  = null;
         this.ghostTurns = 0;
         this.ghostFuture = false;
         this.ghostReturn = null;
@@ -42,15 +41,13 @@ class Ball {
     ghostTo(x, y, returnHome=false, time=20, oldBox=null)
     {
         this.ghostMode = true;
-        this.ghostToX = x;
-        this.ghostToY = y;
         this.ballSpeed *= 3;
         this.ghostTurns = Math.floor(Math.sqrt((this.x - x)**2 + (this.y - y)**2) / (dt*this.ballSpeed));
-        this.ghostReturn = [this.x, this.y];
-        this.ghostEndTime = time;
-        this.ghostReturnBox = oldBox;
         if(returnHome)
         {
+            this.ghostReturn = [this.x, this.y];
+            this.ghostEndTime = time;
+            this.ghostReturnBox = oldBox;
             this.ghostFuture = true;
         }
         let angle = Math.atan2(y-this.y, x-this.x);
@@ -79,8 +76,10 @@ class Ball {
         {
             this.ghostMode = true;
             this.ghostFuture = false;
-            this.ghostToX = this.ghostReturn[0];
-            this.ghostToY = this.ghostReturn[1];
+            this.ballSpeed *= 3;
+            let angle = Math.atan2(this.ghostReturn[0]-this.y, this.ghostReturn[1]-this.x);
+            this.dx = this.ballSpeed * Math.cos(angle);
+            this.dy = this.ballSpeed * Math.sin(angle);  
             this.ghostReturn = null;
             this.ghostEndTime = null;
             this.box.removeBall(this);
@@ -106,6 +105,9 @@ class Ball {
         else if(this.status == 3)
         {
             return "r"
+        }
+        else{
+            return "d"
         }
     }
 
@@ -145,9 +147,19 @@ class Ball {
         return this.sick() || this.status == 3;
     }
 
-    recover(recoverTime, time){
+    recover(recoverTime, time, morbidityRate){
         if(this.sick() && (time - this.infectionStart > recoverTime)){
-            this.status = 3;
+            if(this.dieProbability < morbidityRate)
+            {
+                this.dx = 0;
+                this.dy = 0;
+                this.ghostMode = true;
+                this.ghostTurns = 999999999999;
+                this.status = 4
+            }
+            else{
+                this.status = 3;
+            }
         }
     }
 
@@ -157,7 +169,7 @@ class Ball {
             this.dx /= 1000;
             this.dy /= 1000;
         }
-        else{
+        else if (!this.ghostMode){
             this.socialDistancing = false;
             let angle1 = this.angle();
             this.dx = this.ballSpeed * Math.cos(angle1);
@@ -194,8 +206,11 @@ class Ball {
         if(this.status == 2){
             return "yellow";
         }
-        else{
+        else if(this.status == 3){
             return "green";
+        }
+        else{
+            return "black"
         }
     }
 };

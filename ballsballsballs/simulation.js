@@ -13,6 +13,7 @@ class Simulation {
         this.socialDistanceCompliance = simConfig.socialDistanceCompliance;
         this.recoverTime = simConfig.recoverTime;
         this.infectionRate = simConfig.infectionRate;
+        this.morbidityRate = simConfig.morbidityRate;
         this.symptomatic = simConfig.symptomatic;
         this.numStartingBalls = simConfig.numStartingBalls;
         this.startingSickBalls = simConfig.startingSickBalls;
@@ -78,7 +79,8 @@ class Simulation {
             series: [
               {name: "Susceptible", data: this.chartingInfo.s, color:"lightblue"},
               {name: "Infected", data: this.chartingInfo.i},
-              {name: "Removed", data: this.chartingInfo.r}
+              {name: "Removed", data: this.chartingInfo.r},
+              {name: "Dead", data: this.chartingInfo.d}
             ]
           }, {
             lineSmooth: Chartist.Interpolation.cardinal({
@@ -110,6 +112,7 @@ class Simulation {
         let susceptible = 0;
         let infected = 0;
         let recovered = 0;
+        let dead = 0;
         for(let i=0;i<this.ballArray.length;i++)
         {
             let status = this.ballArray[i].getSIRStatus()
@@ -122,6 +125,9 @@ class Simulation {
             if(status == "r"){
                 recovered += 1;
             }
+            if(status == 'd'){
+                dead += 1;
+            }
         }
         if(infected == 0){
             this.paused = true; 
@@ -130,6 +136,7 @@ class Simulation {
         this.chartingInfo.s.push(susceptible);
         this.chartingInfo.i.push(infected);
         this.chartingInfo.r.push(recovered);
+        this.chartingInfo.d.push(dead);
         this.chartingInfo.l.push(this.chartingInfo.l.length);
     }
     
@@ -210,6 +217,7 @@ class Simulation {
             s:[],
             i:[],
             r:[],
+            d:[],
             l:[],
         }
         this.ylabels = []
@@ -235,7 +243,7 @@ class Simulation {
     recover()
     {
         for(let i=0;i<this.ballArray.length;i++){
-            this.ballArray[i].recover(this.recoverTime, this.time);
+            this.ballArray[i].recover(this.recoverTime, this.time, this.morbidityRate);
         }
     }
 
@@ -339,10 +347,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
             simID: simElements[i].id,
             socialDistanceCompliance: parseFloat(simElements[i].querySelector(".sd").value), //0-1
             infectionRate: parseFloat(simElements[i].querySelector(".ir").value),//0-1
-            symptomatic: parseFloat(simElements[i].querySelector(".sym").value),//0-1
+            symptomatic: 1,//parseFloat(simElements[i].querySelector(".sym").value),//0-1
+            morbidityRate: 0.1,//
             recoverTime:100,
             numStartingBalls: 400,//max = 500
-            startingSickBalls:3,//maybe keep this same?
+            startingSickBalls:1,//maybe keep this same?
             ballSpeed:12,
             numCommunities:1,//1 is min
             hasQuarantineBox:0,
@@ -463,3 +472,9 @@ function pause(event)
         }
     }
 }
+
+//todo
+//1fix number of starting balls
+//clean ghost out of box.js
+//differnt ball speeds
+//age slider 
