@@ -256,31 +256,9 @@ class Simulation {
 
     switchCommunities()
     {
-        let newcomers = [];
-        for(let i=0;i<this.numCommunities;i++)
+        for (let i=0;i<this.ballArray.length;i++)
         {
-            newcomers.push([])
-        }
-        for(let i=0;i<this.numCommunities;i++)
-        {
-            let leavers = this.boxCommunities[i].getLeavingBalls(this.switchCommunityRate);
-            for(let j=0;j<leavers.length;j++)
-            {
-                let newCommunity = Math.floor(Math.random()*(this.numCommunities-1));
-                if(newCommunity >= i)
-                {
-                    newCommunity += 1;
-                }
-                newcomers[newCommunity].push(leavers[j]);
-            }
-        }
-        for(let i=0;i<newcomers.length;i++)
-        {
-            for(let j=0;j<newcomers[i].length;j++)
-            {
-                newcomers[i][j].ghostTo(this.boxCommunities[i].randomX(), this.boxCommunities[i].randomY());
-            }
-            this.boxCommunities[i].addNewBalls(newcomers[i]);
+            this.ballArray[i].changeCommunity(this.switchCommunityRate, this.boxCommunities[Math.floor(Math.random()*this.numCommunities)])
         }
     }
 }

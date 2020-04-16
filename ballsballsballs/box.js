@@ -52,25 +52,6 @@ class Box {
         return ball;
     }
 
-    getLeavingBalls(switchRate)
-    {
-        let leavers = [];
-        let remainers = [];
-        for(let i=this.ballArray.length-1;i>=0;i--)
-        {
-            let ball = this.ballArray[i];
-            if(!ball.socialDistancing && Math.random() < switchRate && ball.ghostFuture == false && ball.ghostMode == false)
-            {
-                leavers.push(ball);
-            }
-            else{
-                remainers.push(ball);
-            }
-        }
-        this.ballArray = remainers;
-        return leavers;
-    }
-
     removeBall(ball)
     {
         let index = null;
@@ -85,13 +66,9 @@ class Box {
         this.ballArray.splice(index, 1);
     }
 
-    addNewBalls(newcomers)
+    addNewBall(newcomer)
     {
-        for(let i=0;i<newcomers.length;i++)
-        {
-            this.ballArray.push(newcomers[i]);
-            this.ballArray[this.ballArray.length-1].box = this;
-        }
+        this.ballArray.push(newcomer);
     }
 
     drawBox()
@@ -149,54 +126,53 @@ class Box {
     ballCollisions()
     {
         let collisions = []
-        for (let i=0; i<this.ballArray.length-1; i++) {
+        for (let i=this.ballArray.length-1; i>=0; i--) {
             if( this.ballArray[i].ghostMode)
             {
                 continue;
             }
-            for (let j=i+1; j<this.ballArray.length; j++) {
+            for (let j=i-1; j>=0; j--) {
                 let ob1 = this.ballArray[i]
                 let ob2 = this.ballArray[j]
                 if(ob2.ghostMode){
                     continue;
                 }
-                let dist = distance(ob1, ob2)
+                let dist = distance(ob1, ob2);
+                let distFuture
     
-                if (dist < ob1.radius + ob2.radius) { 
-                    let theta1 = ob1.angle();
-                    let theta2 = ob2.angle();
-                    let phi = Math.atan2(ob2.y - ob1.y, ob2.x - ob1.x);
-                    let m1 = ob1.mass;
-                    let m2 = ob2.mass;
-                    let v1 = ob1.speed();
-                    let v2 = ob2.speed();
-    
-                    let dx1F = (v1 * Math.cos(theta1 - phi) * (m1-m2) + 2*m2*v2*Math.cos(theta2 - phi)) / (m1+m2) * Math.cos(phi) + v1*Math.sin(theta1-phi) * Math.cos(phi+Math.PI/2);
-                    let dy1F = (v1 * Math.cos(theta1 - phi) * (m1-m2) + 2*m2*v2*Math.cos(theta2 - phi)) / (m1+m2) * Math.sin(phi) + v1*Math.sin(theta1-phi) * Math.sin(phi+Math.PI/2);
-                    let dx2F = (v2 * Math.cos(theta2 - phi) * (m2-m1) + 2*m1*v1*Math.cos(theta1 - phi)) / (m1+m2) * Math.cos(phi) + v2*Math.sin(theta2-phi) * Math.cos(phi+Math.PI/2);
-                    let dy2F = (v2 * Math.cos(theta2 - phi) * (m2-m1) + 2*m1*v1*Math.cos(theta1 - phi)) / (m1+m2) * Math.sin(phi) + v2*Math.sin(theta2-phi) * Math.sin(phi+Math.PI/2);
-    
-                    ob1.dx = dx1F;                
-                    ob1.dy = dy1F;                
-                    ob2.dx = dx2F;                
-                    ob2.dy = dy2F;
-    
-                    if(COLLISIONVELOCITYCONSTANT)
-                    {
-                        let angle1 = ob1.angle();
-                        let angle2 = ob2.angle();
-                        ob1.dx = v1 * Math.cos(angle1);
-                        ob1.dy = v1 * Math.sin(angle1);
-                        ob2.dx = v2 * Math.cos(angle2);
-                        ob2.dy = v2 * Math.sin(angle2);
-                    }
-    
+                if (dist < ob1.radius + ob2.radius && (!ob1.socialDistancing || !ob2.socialDistancing)) { 
+                    ballCollision(ob1, ob2);
               
                     staticCollision(ob1, ob2)
     
                     collisions.push([ob1, ob2])
                     
-                }            
+                }   
+                else if(ob1.socialDistancing && dist < (ob1.radius + ob2.radius)*5)     
+                {
+                    let angle = Math.atan2(ob1.dy - ob2.dy, ob1.dx - ob2.dx);
+                    angle += Math.PI/2;
+                    
+                    ob1.x += 1*Math.cos(angle);
+                    ob1.y += 1*Math.sin(angle);
+                    if (distance(ob1, ob2) < dist)
+                    {
+                        ob1.x -= 2*Math.cos(angle);
+                        ob1.y -= 2*Math.sin(angle);
+                    }
+                }
+                else if(ob2.socialDistancing && dist < (ob1.radius + ob2.radius)*5)
+                {
+                    let angle = Math.atan2(ob1.dy - ob2.dy, ob1.dx - ob2.dx);
+                    angle -= Math.PI/2;
+                    ob2.x += 1*Math.cos(angle);
+                    ob2.y += 1*Math.sin(angle);
+                    if (distance(ob1, ob2) < dist)
+                    {
+                        ob2.x -= 2*Math.cos(angle);
+                        ob2.y -= 2*Math.sin(angle);
+                    }
+                }
             }
         }
         
@@ -206,6 +182,37 @@ class Box {
 
 function distance(a, b) {
     return Math.sqrt((a.x - b.x)**2 + (a.y - b.y)**2);
+}
+
+function ballCollision(ob1, ob2)
+{
+    let theta1 = ob1.angle();
+    let theta2 = ob2.angle();
+    let phi = Math.atan2(ob2.y - ob1.y, ob2.x - ob1.x);
+    let m1 = ob1.mass;
+    let m2 = ob2.mass;
+    let v1 = ob1.speed();
+    let v2 = ob2.speed();
+
+    let dx1F = (v1 * Math.cos(theta1 - phi) * (m1-m2) + 2*m2*v2*Math.cos(theta2 - phi)) / (m1+m2) * Math.cos(phi) + v1*Math.sin(theta1-phi) * Math.cos(phi+Math.PI/2);
+    let dy1F = (v1 * Math.cos(theta1 - phi) * (m1-m2) + 2*m2*v2*Math.cos(theta2 - phi)) / (m1+m2) * Math.sin(phi) + v1*Math.sin(theta1-phi) * Math.sin(phi+Math.PI/2);
+    let dx2F = (v2 * Math.cos(theta2 - phi) * (m2-m1) + 2*m1*v1*Math.cos(theta1 - phi)) / (m1+m2) * Math.cos(phi) + v2*Math.sin(theta2-phi) * Math.cos(phi+Math.PI/2);
+    let dy2F = (v2 * Math.cos(theta2 - phi) * (m2-m1) + 2*m1*v1*Math.cos(theta1 - phi)) / (m1+m2) * Math.sin(phi) + v2*Math.sin(theta2-phi) * Math.sin(phi+Math.PI/2);
+
+    ob1.dx = dx1F;                
+    ob1.dy = dy1F;                
+    ob2.dx = dx2F;                
+    ob2.dy = dy2F;
+
+    if(COLLISIONVELOCITYCONSTANT)
+    {
+        let angle1 = ob1.angle();
+        let angle2 = ob2.angle();
+        ob1.dx = v1 * Math.cos(angle1);
+        ob1.dy = v1 * Math.sin(angle1);
+        ob2.dx = v2 * Math.cos(angle2);
+        ob2.dy = v2 * Math.sin(angle2);
+    }
 }
 
 function staticCollision(ob1, ob2, emergency=false)

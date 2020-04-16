@@ -29,14 +29,29 @@ class Ball {
         this.collisionIndex = 0
         this.collisionHistory = [];
 
-        this.box = null;
+        this.box = box;
         this.ghostMode = false;
         this.ghostTurns = 0;
         this.ghostFuture = false;
         this.ghostReturn = null;
         this.ghostEndTime = null;
         this.ghostReturnBox = null;
-    }; 
+    };
+    
+    changeCommunity(switchRate, newBox)
+    {
+        if(!this.socialDistancing && Math.random() < switchRate && this.ghostFuture == false && this.ghostMode == false)
+        {
+            if(newBox == this.box)
+            {
+                return;
+            }
+            this.ghostTo(newBox.randomX(), newBox.randomY());
+            this.box.removeBall(this);
+            this.box = newBox;
+            this.box.addNewBall(this);
+        }
+    }
 
     ghostTo(x, y, returnHome=false, time=20, oldBox=null)
     {
@@ -83,7 +98,7 @@ class Ball {
             this.ghostReturn = null;
             this.ghostEndTime = null;
             this.box.removeBall(this);
-            this.ghostReturnBox.addNewBalls([this]);
+            this.ghostReturnBox.addNewBall(this);
             this.ghostReturnBox = null;
         }
         else{
@@ -169,7 +184,8 @@ class Ball {
             this.dx /= 1000;
             this.dy /= 1000;
         }
-        else if (!this.ghostMode){
+        else if (this.socialDistancing && !this.ghostMode && !this.ghostFuture){
+            console.log(this.id);
             this.socialDistancing = false;
             let angle1 = this.angle();
             this.dx = this.ballSpeed * Math.cos(angle1);
