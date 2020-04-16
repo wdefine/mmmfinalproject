@@ -1,5 +1,6 @@
 //EPIDEMIOLOGY MACROS
 const BALLRADIUS = 3;
+const dt = 50* 10/1000;
 class Ball {
     
     constructor(x, y, id, ballSpeed){
@@ -8,13 +9,14 @@ class Ball {
         this.x = x;
         this.y = y;
 
-        this.id = id;//ball id is index in objArray
+        this.id = id;//ball id is index in ballArray
     
         let angle = Math.random() * 2 * Math.PI; 
         this.dx = this.ballSpeed * Math.cos(angle);
         this.dy = this.ballSpeed * Math.sin(angle);  
         
         this.socialDistancingWillingness = Math.random();
+        this.socialDistancing = false;
         this.showsSymptoms = Math.random();
 
         // mass is that of a sphere as opposed to circle
@@ -27,7 +29,50 @@ class Ball {
         this.collisionHistory = [];
 
         this.ghostMode = false;
+        this.ghostToX  = null;
+        this.ghostToY  = null;
+        this.ghostFuture = false;
+        this.ghostReturn = null;
+        this.ghostEndTime = null;
     }; 
+
+    ghostTo(x, y, returnHome=false, time=20)
+    {
+        this.ghostTime = true;
+        this.ghostToX = x;
+        this.ghostToY = y;
+        if(returnHome)
+        {
+            this.ghostFuture = true;
+            this.ghostReturn = [this.x, this.y];
+            this.ghostEndTime = time;
+        }
+        let angle = Math.atan2(y-this.y, x-this.x);
+        this.dx = 3 * this.ballSpeed * Math.cos(angle);
+        this.dy = 3 * this.ballSpeed * Math.sin(angle);  
+    }
+
+    move(time){
+        if(this.ghostMode)
+        {
+            //move towards ghost point
+            if(this.dx * dt > Math.abs(this.x - this.ghostToX))
+            {
+                this.x = this.ghostToX;
+                this.y = this.ghostToY;
+                let angle = Math.random() * 2 * Math.PI; 
+                this.dx = this.ballSpeed * Math.cos(angle);
+                this.dy = this.ballSpeed * Math.sin(angle); 
+                this.ghostMode = false; 
+            }
+            else
+            {
+                this.x += this.dx * dt;
+                this.y += this.dy * dt;
+            }
+        }
+        else if (this.ghostFuture && IAMHEREEEEEEE){}
+    }
     
     getSIRStatus()
     {
@@ -89,10 +134,12 @@ class Ball {
 
     socialDistance(percentCompliance){
         if(this.socialDistancingWillingness < percentCompliance){
+            this.socialDistancing = true;
             this.dx /= 1000;
             this.dy /= 1000;
         }
         else{
+            this.socialDistancing = false;
             let angle1 = this.angle();
             this.dx = this.ballSpeed * Math.cos(angle1);
             this.dy = this.ballSpeed * Math.sin(angle1);

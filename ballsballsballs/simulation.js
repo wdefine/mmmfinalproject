@@ -17,6 +17,10 @@ class Simulation {
         this.numStartingBalls = simConfig.numStartingBalls;
         this.startingSickBalls = simConfig.startingSickBalls;
         this.ballSpeed = simConfig.ballSpeed;
+        this.numCommunities = simConfig.numCommunities;
+        this.hasMarketBox = simConfig.hasMarketBox;
+        this.hasQuarantineBox = simConfig.hasQuarantineBox;
+        this.switchCommunityRate = simConfig.switchCommunityRate;
 
         this.reset();
     }
@@ -24,23 +28,35 @@ class Simulation {
     //draw advances the simulation and updates the canvas
     drawCanvas() {
        this.time += 1;
-       let dt = 50* 10/1000
 
-        clearCanvas(this.ctx, this.canvas);
+        this.clearCanvas(this.ctx, this.canvas);
 
         this.recover(); //set balls who have recoved as recovered
         this.socialDistance(); //force balls to socially distance
-
-        moveObjects(this.objArray, dt); //move balls in direction
-        wallCollision(this.objArray, this.canvas); //bounce balls off walls
-        let collisions = ballCollision(this.objArray); //bounce balls off eachother, return pairs who collide
-        
+        this.switchCommunities();
+    
+        let collisions = [];
+        for(let i=0;i<this.boxArray.length;i++)
+        {
+            this.boxArray[i].moveBalls(time);
+            this.boxArray[i].wallCollisions();
+            collisions = collisions.concat(this.boxArray[i].ballCollisions());
+            this.boxArray[i].drawBox();//draw boxes on canvas
+        }
         this.transmitInfection(collisions); //transmit infection on collision
-        
-        drawObjects(this.objArray, this.ctx); //draw balls on canvas
+
+        //draw balls
+        for (let obj in this.ballArray) {
+            this.ballArray[obj].draw(this.ctx);
+        }
 
         this.updateChartingInfo();//add sir+ info to 
         this.chart();
+    }
+
+    clearCanvas() {
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.canvas.style.backgroundColor = "rgb(255, 255, 255)";
     }
 
     //chart updates chart
@@ -83,9 +99,9 @@ class Simulation {
         let susceptible = 0;
         let infected = 0;
         let recovered = 0;
-        for(let i=0;i<this.objArray.length;i++)
+        for(let i=0;i<this.ballArray.length;i++)
         {
-            let status = this.objArray[i].getSIRStatus()
+            let status = this.ballArray[i].getSIRStatus()
             if(status == "s"){
                 susceptible += 1;
             }
@@ -106,13 +122,41 @@ class Simulation {
         this.chartingInfo.l.push(this.chartingInfo.l.length);
     }
     
-    initBalls(){
-        for (let i = 0; i<this.numStartingBalls; i++) {
-            this.objArray[this.objArray.length] = new Ball(randomX(this.canvas), randomY(this.canvas), i, this.ballSpeed);
+    initBallsBoxes(){
+        let sideBoxes = this.hasMarketBox || this.hasQuarantineBox;
+        if(sideBoxes)
+        {
+            let width = Math.min(100, this.canvas.width/2);
+            let height = Math.floor(Math.min(200, this.canvas.height)/2);
+            let marketBoxPoints = [[0,0],[0,height],[width, height],[width, 0]];
+            let quarantineBoxPoints = [[0,height],[0,height*2],[width, height*2],[width, height]];
+            if(this.hasMarketBox)
+            {
+                this.boxMarket = new Box(marketBoxPoints, this.ctx, "green", 2);
+            }
+            if(this.hasQuarantineBox)
+            {
+                this.boxQuarantine = new Box(quarantineBoxPoints, this.ctx, "red", 2);
+            }
         }
-        for(let i = 0;i<this.startingSickBalls;i++){
-            this.objArray[i].getSick(this.time, this.symptomatic);
-            this.objArray[i].socialDistancingWillingness = 1; //will not socially distance, to make simulation workable
+        let boxPoints = splitBoxesEvenly(this.numCommunities, this.canvas.width - 100*sideBoxes, this.canvas.height, 100, 0);
+        let ballsPerBox = Math.floor(this.numStartingBalls/this.numCommunities);
+        for(let i=0;i<this.numCommunities;i++)
+        {
+            let numSickBalls = Math.floor(this.startingSickBalls/this.numCommunities) + (i < this.startingSickBalls%this.numCommunities) ? 1 : 0;
+            this.boxCommunities.push(new Box(boxPoints[i], this.ctx, "black", 2));
+            this.addXBallsToBox(this.boxCommunities[i], ballsPerBox,  numSickBalls);
+        }
+    }
+
+    addXBallsToBox(box, balls, sickBalls){
+        let starting_index = this.ballArray.length;
+        for (let i = 0; i<balls; i++) {
+            this.ballArray.push(box.createBallInBox(this.ballArray.length, this.ballSpeed));
+        }
+        for(let i = 0;i<sickBalls;i++){
+            this.ballArray[i+starting_index].getSick(this.time, this.symptomatic);
+            this.ballArray[i+starting_index].socialDistancingWillingness = 0.9999999999999; //sick balls won't socially distance
         }
     }
 
@@ -123,12 +167,22 @@ class Simulation {
         this.paused = true;
 
         //init balls
-        this.objArray = [];
-        this.initBalls();
+        this.ballArray = [];
+        this.boxCommunities = [];
+        this.boxMarket = null;
+        this.boxQuarantine = null;
+        this.initBallsBoxes();
+        this.boxArray = this.boxCommunities.concat([this.boxMarket]).concat([this.boxQuarantine]);
 
         //init canvas
-        clearCanvas(this.ctx, this.canvas);
-        drawObjects(this.objArray, this.ctx);
+        this.clearCanvas(this.ctx, this.canvas);
+        for (let obj in this.ballArray) {
+            this.ballArray[obj].draw(this.ctx);
+        }
+        for(let i=0;i<this.boxArray.length;i++)
+        {
+            this.boxArray[i].drawBox();//draw boxes on canvas
+        }
 
         //init charting
         this.chartingInfo = {
@@ -159,17 +213,94 @@ class Simulation {
 
     recover()
     {
-        for(let i=0;i<this.objArray.length;i++){
-            this.objArray[i].recover(this.recoverTime, this.time);
+        for(let i=0;i<this.ballArray.length;i++){
+            this.ballArray[i].recover(this.recoverTime, this.time);
         }
     }
 
     socialDistance()
     {
-        for(let i=0;i<this.objArray.length;i++){
-            this.objArray[i].socialDistance(this.socialDistanceCompliance);
+        for(let i=0;i<this.ballArray.length;i++){
+            this.ballArray[i].socialDistance(this.socialDistanceCompliance);
         }
     }
+
+    switchCommunities()
+    {
+        let newcomers = [];
+        for(let i=0;i<this.numCommunities;i++)
+        {
+            newcomers.push([])
+        }
+        for(let i=0;i<this.numCommunities;i++)
+        {
+            let leavers = this.boxCommunities[i].getLeavingBalls(this.switchCommunityRate);
+            for(let j=0;j<leavers.length;j++)
+            {
+                let newCommunity = Math.floor(Math.random()*(this.numCommunities-1));
+                if(newCommunity >= i)
+                {
+                    newCommunity += 1;
+                }
+                newcomers[newCommunity].push(leavers[j]);
+            }
+        }
+        for(let i=0;i<newcomers.length;i++)
+        {
+            this.boxCommunities[i].addNewBalls(newcomers[i]);
+        }
+    }
+}
+
+function splitBoxesEvenly(num_boxes, width, height, widthOffset, heightOffset)
+{
+    let [widthFactor, heightFactor] = findSquarestFactors(num_boxes, width, height);
+    let points = [];
+    let boxWidth = Math.floor(width/widthFactor);
+    let boxHeight= Math.floor(height/heightFactor);
+    for(let i=0;i<widthFactor;i++)
+    {
+        for(let j=0;j<heightFactor;j++)
+        {
+            let xOffset = widthOffset + boxWidth*i;
+            let yOffset = heightOffset + boxHeight*j;
+            points.push([
+                [xOffset, yOffset],
+                [xOffset, yOffset + boxHeight],
+                [xOffset + boxWidth, yOffset + boxHeight],
+                [xOffset + boxWidth, yOffset]
+            ]);
+        }
+    }
+    return points;
+}
+
+function findSquarestFactors(num_boxes, width, height)
+{
+    let dSmall = Math.min(width, height);
+    let dLarge = Math.max(width, height);
+    const factorsFx = number => Array
+    .from(Array(number + 1), (_, i) => i)
+    .filter(i => (number != 0 && number % i === 0 && i*i <= number))
+    let factors = factorsFx(num_boxes);
+    let bestFactor = factors[0];
+    let bestRatio = 9999999999999;
+    for(let i=0;i<factors.length;i++){
+        let factor1 = factors[i];
+        let factor2 = num_boxes/factor1;
+        let boxD1 = dLarge/factor2;
+        let boxD2 = dSmall/factor1;
+        let boxDL = Math.max(boxD1, boxD2);
+        let boxDS = Math.min(boxD1, boxD2);
+        if (boxDL/boxDS < bestRatio)
+        {
+            bestRatio = boxDL/boxDS;
+            bestFactor = factor1;
+        }
+    }
+    let widthFactor = Math.floor(width < height ? bestFactor : num_boxes/bestFactor);
+    let heightFactor = Math.floor(num_boxes/widthFactor);
+    return [widthFactor, heightFactor];
 }
 
 //pull sim configs from dom, creates sim classes, save sims to sims[]
@@ -186,8 +317,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
             symptomatic: parseFloat(simElements[i].querySelector(".sym").value),//0-1
             recoverTime:60,
             numStartingBalls: 500,//max = 500
-            startingSickBalls:5,//max = #numStartingBalls
+            startingSickBalls:1,//maybe keep this same?
             ballSpeed:10,
+            numCommunities:4,//1 is min
+            hasQuarantineBox:1,
+            hasMarketBox:1,
+            switchCommunityRate:0.01,
+            goToMarketFrequency:0.01,
+            goToMarketDuration:10,
+
         })
     }
     for(let i=0;i<simConfigs.length;i++){
