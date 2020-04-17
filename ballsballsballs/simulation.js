@@ -11,17 +11,21 @@ class Simulation {
 
         //init parameters from simconfig
         this.socialDistanceCompliance = simConfig.socialDistanceCompliance;
+        this.symptomStartTime = simConfig.symptomStartTime;
         this.recoverTime = simConfig.recoverTime;
         this.infectionRate = simConfig.infectionRate;
         this.morbidityRate = simConfig.morbidityRate;
-        this.symptomatic = simConfig.symptomatic;
+        this.symptomaticRate = simConfig.symptomaticRate;
         this.numStartingBalls = simConfig.numStartingBalls;
         this.startingSickBalls = simConfig.startingSickBalls;
         this.ballSpeed = simConfig.ballSpeed;
         this.numCommunities = simConfig.numCommunities;
-        this.hasMarketBox = simConfig.hasMarketBox;
-        this.hasQuarantineBox = simConfig.hasQuarantineBox;
         this.switchCommunityRate = simConfig.switchCommunityRate;
+        this.hasMarketBox = simConfig.hasMarketBox;
+        this.marketDuration = simConfig.marketDuration;
+        this.marketFrequency = simConfig.marketFrequency;
+        this.hasHospitalBox = simConfig.hasHospitalBox;
+        this.hospitalizationRate = simConfig.hospitalizationRate;
 
         this.reset();
 
@@ -47,11 +51,19 @@ class Simulation {
     simLoop() {
         this.time += 1;
 
-        this.recover(); //set balls who have recoved as recovered
+        this.updateBalls(); //set balls who have recoved as recovered
         this.socialDistance(); //force balls to socially distance
         if(this.numCommunities > 1)
         {
             this.switchCommunities();
+        }
+        if(this.hasMarketBox)
+        {
+            this.goToMarket();
+        }
+        if(this.hasHospitalBox)
+        {
+            this.hospitalize();
         }
     
         let collisions = [];
@@ -141,20 +153,20 @@ class Simulation {
     }
     
     initBallsBoxes(){
-        let sideBoxes = this.hasMarketBox || this.hasQuarantineBox;
+        let sideBoxes = this.hasMarketBox || this.hasHospitalBox;
         if(sideBoxes)
         {
             let width = Math.min(100, this.canvas.width/2);
             let height = Math.floor(Math.min(200, this.canvas.height)/2);
             let marketBoxPoints = [[0,0],[0,height],[width, height],[width, 0]];
-            let quarantineBoxPoints = [[0,height],[0,height*2],[width, height*2],[width, height]];
+            let hospitalBoxPoints = [[0,height],[0,height*2],[width, height*2],[width, height]];
             if(this.hasMarketBox)
             {
                 this.boxMarket = new Box(marketBoxPoints, this.ctx, "green", 2);
             }
-            if(this.hasQuarantineBox)
+            if(this.hasHospitalBox)
             {
-                this.boxQuarantine = new Box(quarantineBoxPoints, this.ctx, "red", 2);
+                this.boxHospital = new Box(hospitalBoxPoints, this.ctx, "red", 2);
             }
         }
         let width = sideBoxes ? this.canvas.width - 100 : this.canvas.width;
@@ -175,7 +187,7 @@ class Simulation {
             this.ballArray.push(box.createBallInBox(this.ballArray.length, this.ballSpeed));
         }
         for(let i = 0;i<sickBalls;i++){
-            this.ballArray[i+starting_index].getSick(this.time, this.symptomatic);
+            this.ballArray[i+starting_index].getSick(this.time, this.recoverTime, this.symptomStartTime);
             this.ballArray[i+starting_index].socialDistancingWillingness = 0.9999999999999; //sick balls won't socially distance
         }
     }
@@ -190,16 +202,16 @@ class Simulation {
         this.ballArray = [];
         this.boxCommunities = [];
         this.boxMarket = null;
-        this.boxQuarantine = null;
+        this.boxHospital = null;
         this.initBallsBoxes();
         this.boxArray = this.boxCommunities;
         if(this.hasMarketBox)
         {
             this.boxArray.push(this.boxMarket);
         }
-        if(this.hasQuarantineBox)
+        if(this.hasHospitalBox)
         {
-            this.boxArray.push(this.boxQuarantine);
+            this.boxArray.push(this.boxHospital);
         }
 
         //init canvas
@@ -235,15 +247,15 @@ class Simulation {
             let ball1 = collisions[i][0];
             let ball2 = collisions[i][1];
             let transmission = Math.random() < this.infectionRate;
-            ball1.collide(ball2, this.time, transmission, this.symptomatic);
-            ball2.collide(ball1, this.time, transmission, this.symptomatic);
+            ball1.collide(ball2, transmission, this.time, this.symptomStartTime, this.recoverTime);
+            ball2.collide(ball1, transmission, this.time, this.symptomStartTime, this.recoverTime);
         }
     }
 
-    recover()
+    updateBalls()
     {
         for(let i=0;i<this.ballArray.length;i++){
-            this.ballArray[i].recover(this.recoverTime, this.time, this.morbidityRate);
+            this.ballArray[i].updateStatus(this.time, this.morbidityRate, this.symptomaticRate);
         }
     }
 
@@ -258,7 +270,23 @@ class Simulation {
     {
         for (let i=0;i<this.ballArray.length;i++)
         {
-            this.ballArray[i].changeCommunity(this.switchCommunityRate, this.boxCommunities[Math.floor(Math.random()*this.numCommunities)])
+            this.ballArray[i].changeCommunity(this.boxCommunities[Math.floor(Math.random()*this.numCommunities)], this.switchCommunityRate)
+        }
+    }
+
+    goToMarket()
+    {
+        for (let i=0;i<this.ballArray.length;i++)
+        {
+            this.ballArray[i].goToMarket(this.boxMarket, this.marketFrequency, this.marketDuration, this.time);
+        }
+    }
+
+    hospitalize()
+    {
+        for (let i=0;i<this.ballArray.length;i++)
+        {
+            this.ballArray[i].hospitalize(this.boxHospital, this.hospitalizationRate);
         }
     }
 }
@@ -323,25 +351,58 @@ window.addEventListener('DOMContentLoaded', (event) => {
     {
         simConfigs.push({
             simID: simElements[i].id,
+
+            //percent of balls that stay in place with magnetic avoidance
             socialDistanceCompliance: parseFloat(simElements[i].querySelector(".sd").value), //0-1
+
+            //probability that if two balls collide then one will transmit disease
             infectionRate: parseFloat(simElements[i].querySelector(".ir").value),//0-1
-            symptomatic: 1,//parseFloat(simElements[i].querySelector(".sym").value),//0-1
-            morbidityRate: 0.1,//
+
+            //percent of people who eventually show disease symptoms
+            symptomaticRate: 1,//parseFloat(simElements[i].querySelector(".sym").value),//0-1
+
+            //time from infection to recovery/death
             recoverTime:100,
-            numStartingBalls: 400,//max = 500
-            startingSickBalls:1,//maybe keep this same?
+
+            //time from infection to showing symptoms (some do not show symptoms ever)
+            symptomStartTime: 50,
+
+            //rate of people who get sick and show symptoms that die
+            morbidityRate: 0.1,
+
+            //num of balls in simulation
+            numStartingBalls: 400,
+
+            //balls that start simulation sick
+            startingSickBalls:1,
+
+            //speed of balls ->effects number of balls they interact with and speed
             ballSpeed:12,
-            numCommunities:1,//1 is min
-            hasQuarantineBox:0,
-            hasMarketBox:0,
+
+            //min=1, number of normal boxes
+            numCommunities:1,
+            //rate at which balls move from one community to another, they do not return 
             switchCommunityRate:0.0015,
-            goToMarketFrequency:0.01,
-            goToMarketDuration:10,
+
+            //boolean for has market
+            hasMarketBox:1,
+
+            //rate at which balls go to Market, socially distancing balls go to Market 
+            marketFrequency:0.001,
+
+            //time spent in market
+            marketDuration:20,
+
+            //boolean for has hospital box
+            hasHospitalBox:1,
+
+            //rate of balls with symptoms that go to hospital until their infection is over
+            hospitalizationRate:0.5,
 
         })
     }
-    simConfigs[1].startingSickBalls =1;
-    simConfigs[1].numCommunities = 12;
+    simConfigs[1].numCommunities = 100;
+    simConfigs[1].hasMarketBox = 0;
     for(let i=0;i<simConfigs.length;i++){
         sims.push(new Simulation(simConfigs[i]))
     }
@@ -414,12 +475,12 @@ function updateInfectionRate(event)
     }
 }
 
-function updateSymptomatic(event)
+function updateSymptomaticRate(event)
 {
     let [sim, e] = simAndTargetFromEvent(event);
     if(sim)
     {
-        sim.symptomatic = e.value;
+        sim.symptomaticRate = e.value;
     }
 }
 
@@ -452,7 +513,5 @@ function pause(event)
 }
 
 //todo
-//1fix number of starting balls
-//clean ghost out of box.js
-//differnt ball speeds
-//age slider 
+//fix number of starting balls?
+//ball ages, affect visuals, speed, -> later affect various mortality rates

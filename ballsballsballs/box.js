@@ -148,7 +148,8 @@ class Box {
                     collisions.push([ob1, ob2])
                     
                 }   
-                else if(ob1.socialDistancing && dist < (ob1.radius + ob2.radius)*5)     
+                /*SOCIAL DISTANCING Magnetic Repulsion */
+                else if(ob1.socialDistancing && dist < (ob1.radius + ob2.radius)*4)     
                 {
                     let angle = Math.atan2(ob1.dy - ob2.dy, ob1.dx - ob2.dx);
                     angle += Math.PI/2;
@@ -161,7 +162,7 @@ class Box {
                         ob1.y -= 2*Math.sin(angle);
                     }
                 }
-                else if(ob2.socialDistancing && dist < (ob1.radius + ob2.radius)*5)
+                else if(ob2.socialDistancing && dist < (ob1.radius + ob2.radius)*4)
                 {
                     let angle = Math.atan2(ob1.dy - ob2.dy, ob1.dx - ob2.dx);
                     angle -= Math.PI/2;
@@ -175,7 +176,6 @@ class Box {
                 }
             }
         }
-        
         return collisions;
     }
 }
