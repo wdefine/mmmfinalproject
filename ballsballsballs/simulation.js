@@ -8,28 +8,12 @@ class Simulation {
         this.chartID = sim.querySelector('.chart').id;
         this.canvas = document.getElementById(this.canvasID);
         this.ctx = this.canvas.getContext("2d");
+        this.config = simConfig;
 
         //init parameters from simconfig
-        this.socialDistanceCompliance = simConfig.socialDistanceCompliance;
-        this.symptomStartTime = simConfig.symptomStartTime;
-        this.recoverTime = simConfig.recoverTime;
-        this.infectionRate = simConfig.infectionRate;
-        this.morbidityRate = simConfig.morbidityRate;
-        this.symptomaticRate = simConfig.symptomaticRate;
-        this.numStartingBalls = simConfig.numStartingBalls;
-        this.startingSickBalls = simConfig.startingSickBalls;
-        this.ballSpeed = simConfig.ballSpeed;
-        this.numCommunities = simConfig.numCommunities;
-        this.switchCommunityRate = simConfig.switchCommunityRate;
-        this.hasMarketBox = simConfig.hasMarketBox;
-        this.marketDuration = simConfig.marketDuration;
-        this.marketFrequency = simConfig.marketFrequency;
-        this.hasHospitalBox = simConfig.hasHospitalBox;
-        this.hospitalizationRate = simConfig.hospitalizationRate;
+
 
         this.reset();
-
-        this.canvases = []
     }
 
     drawCanvas()
@@ -44,7 +28,6 @@ class Simulation {
         for (let obj in this.ballArray) {
             this.ballArray[obj].draw(this.ctx);
         }
-        //this.chart();
     }
 
     //draw advances the simulation and updates the canvas
@@ -52,11 +35,9 @@ class Simulation {
         this.time += 1;
 
         this.updateBalls(); //set balls who have recoved as recovered
+        this.testAndTrace();
         this.socialDistance(); //force balls to socially distance
-        if(this.numCommunities > 1)
-        {
-            this.switchCommunities();
-        }
+        this.switchCommunities();
         if(this.hasMarketBox)
         {
             this.goToMarket();
@@ -192,7 +173,50 @@ class Simulation {
         }
     }
 
+    applyControls()
+    {
+        this.socialDistanceCompliance = this.config.socialDistanceCompliance;
+        this.infectionRate = this.config.infectionRate;
+        this.morbidityRate = this.config.morbidityRate;
+        this.symptomaticRate = this.config.symptomaticRate;
+        this.symptomStartTime = this.config.symptomStartTime;
+        this.recoverTime = this.config.recoverTime;
+        this.numStartingBalls = Math.floor(this.config.numStartingBalls);
+        this.startingSickBalls = Math.min(Math.floor(this.config.startingSickBalls), this.numStartingBalls);
+        this.ballSpeed = this.config.ballSpeed;
+        this.numCommunities = Math.max(1, Math.floor(this.config.numCommunities));
+        this.switchCommunityRate = this.config.switchCommunityRate;
+        this.hasMarketBox = this.config.hasMarketBox;
+        this.marketDuration = this.config.marketDuration;
+        this.marketFrequency = this.config.marketFrequency;
+        this.hasHospitalBox = this.config.hasHospitalBox;
+        this.hospitalizationRate = this.config.hospitalizationRate;
+        this.testAndTraceRate = this.config.testAndTraceRate;
+        this.testAndTraceInceptionRate = this.config.testAndTraceInceptionRate;
+        this.testAndTraceNumContacts = Math.max(0,Math.floor(this.config.testAndTraceNumContacts));
+        this.testAndTraceQuarantineMode = this.config.testAndTraceQuarantineMode;
+        if(this.testAndTraceQuarantineMode == 1 && this.hasHospitalBox == 0)
+        {
+            this.testAndTraceQuarantineMode = 0;
+        }
+    }
+
+    updateControl(name, value)
+    {
+        const dynamicControls = ["socialDistanceCompliance", "infectionRate", "morbidityRate", "switchCommunityRate",
+                                 "marketDuration", "marketFrequency"];
+        if(name in this.config)
+        {
+            this.config[name] = value;
+        }
+        if(dynamicControls.includes(name))
+        {
+            this[name] = value;
+        }
+    }
+
     reset(){
+        this.applyControls();
         //init timing
         this.time = 0;
         this.done = false;
@@ -278,7 +302,7 @@ class Simulation {
     {
         for (let i=0;i<this.ballArray.length;i++)
         {
-            this.ballArray[i].goToMarket(this.boxMarket, this.marketFrequency, this.marketDuration, this.time);
+            this.ballArray[i].goToMarket(this.boxMarket, this.marketFrequency, this.time, this.marketDuration);
         }
     }
 
@@ -286,7 +310,15 @@ class Simulation {
     {
         for (let i=0;i<this.ballArray.length;i++)
         {
-            this.ballArray[i].hospitalize(this.boxHospital, this.hospitalizationRate);
+            this.ballArray[i].hospitalize(this.boxHospital, this.hospitalizationRate, this.time);
+        }
+    }
+
+    testAndTrace()
+    {
+        for (let i=0;i<this.ballArray.length;i++)
+        {
+            this.ballArray[i].randomTest(this.testAndTraceRate, this.testAndTraceInceptionRate, this.testAndTraceNumContacts, this.testAndTraceQuarantineMode, this.boxHospital);
         }
     }
 }
@@ -344,65 +376,47 @@ function findSquarestFactors(num_boxes, width, height)
 
 //pull sim configs from dom, creates sim classes, save sims to sims[]
 let sims = [];
+let defaultConfig = {
+    socialDistanceCompliance: 0.0,
+    infectionRate: 0.5,
+    symptomaticRate: 1,
+    recoverTime: 100,
+    symptomStartTime: 50,
+    morbidityRate: 0.1,
+    numStartingBalls: 400,
+    startingSickBalls: 1,
+    ballSpeed: 12,
+    numCommunities: 1,
+    switchCommunityRate: 0.0,
+    hasMarketBox: 0,
+    marketFrequency: 0.0,
+    marketDuration: 20,
+    hasHospitalBox:0,
+    hospitalizationRate:0.00,
+    testAndTraceRate: 0,
+    testAndTraceInceptionRate: 0,
+    testAndTraceNumContacts: 0, //max = 25
+    testAndTraceQuarantineMode: 0, //0=social distance, 1=goToHospital
+}
+
 window.addEventListener('DOMContentLoaded', (event) => {
     let simConfigs = [];
     let simElements = document.getElementsByClassName('sim');
     for(let i=0;i<simElements.length;i++)
     {
-        simConfigs.push({
-            simID: simElements[i].id,
-
-            //percent of balls that stay in place with magnetic avoidance
-            socialDistanceCompliance: parseFloat(simElements[i].querySelector(".sd").value), //0-1
-
-            //probability that if two balls collide then one will transmit disease
-            infectionRate: parseFloat(simElements[i].querySelector(".ir").value),//0-1
-
-            //percent of people who eventually show disease symptoms
-            symptomaticRate: 1,//parseFloat(simElements[i].querySelector(".sym").value),//0-1
-
-            //time from infection to recovery/death
-            recoverTime:100,
-
-            //time from infection to showing symptoms (some do not show symptoms ever)
-            symptomStartTime: 50,
-
-            //rate of people who get sick and show symptoms that die
-            morbidityRate: 0.1,
-
-            //num of balls in simulation
-            numStartingBalls: 400,
-
-            //balls that start simulation sick
-            startingSickBalls:1,
-
-            //speed of balls ->effects number of balls they interact with and speed
-            ballSpeed:12,
-
-            //min=1, number of normal boxes
-            numCommunities:1,
-            //rate at which balls move from one community to another, they do not return 
-            switchCommunityRate:0.0015,
-
-            //boolean for has market
-            hasMarketBox:1,
-
-            //rate at which balls go to Market, socially distancing balls go to Market 
-            marketFrequency:0.001,
-
-            //time spent in market
-            marketDuration:20,
-
-            //boolean for has hospital box
-            hasHospitalBox:1,
-
-            //rate of balls with symptoms that go to hospital until their infection is over
-            hospitalizationRate:0.5,
-
-        })
+        let config = Object.assign({}, defaultConfig);
+        let sim = document.getElementById(simElements[i].id);
+        for(key in config)
+        {
+            element = sim.querySelector('.' + key);
+            if(element != null)
+            {
+                config[key] = isNaN(parseFloat(element.value)) ? config[key] : parseFloat(element.value);
+            }
+        }
+        config.simID = simElements[i].id,
+        simConfigs.push(config);
     }
-    simConfigs[1].numCommunities = 100;
-    simConfigs[1].hasMarketBox = 0;
     for(let i=0;i<simConfigs.length;i++){
         sims.push(new Simulation(simConfigs[i]))
     }
@@ -410,13 +424,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
 });
 
 let global_counter = 0
+const updateGraphMs = 1000;
+const runSimMs = 50;
 function step()
 {
     for(let i =0;i<sims.length;i++){
         if(!sims[i].paused)
         {
             sims[i].drawCanvas();
-            if(global_counter % 15 == 0)
+            if(global_counter % Math.floor(updateGraphMs/runSimMs) == 0)
             {
                 sims[i].chart();
             }
@@ -436,7 +452,7 @@ var interval = setInterval(function(){
             break;//if multiple sims are unpaused, this makes first sim run, others are effectively paused
         }
     }
-}, 60);
+}, runSimMs);
 
 //functions for handling changes to values
 function simAndTargetFromEvent(event)
@@ -457,30 +473,12 @@ function simAndTargetFromEvent(event)
     return [sim, e];
 }
 
-function updateSocialDistance(event)
+function update(event)
 {
     let [sim, e] = simAndTargetFromEvent(event);
     if(sim)
     {
-        sim.socialDistanceCompliance = e.value;
-    }
-}
-
-function updateInfectionRate(event)
-{
-    let [sim, e] = simAndTargetFromEvent(event);
-    if(sim)
-    {
-        sim.infectionRate = e.value;
-    }
-}
-
-function updateSymptomaticRate(event)
-{
-    let [sim, e] = simAndTargetFromEvent(event);
-    if(sim)
-    {
-        sim.symptomaticRate = e.value;
+        sim.updateControl(e.className, e.value);
     }
 }
 
@@ -515,3 +513,6 @@ function pause(event)
 //todo
 //fix number of starting balls?
 //ball ages, affect visuals, speed, -> later affect various mortality rates
+//fix balls for less reliance on status, just use status when updating
+//remove unneccesary fxn calls from simulation
+//add new dynamic knobs to list

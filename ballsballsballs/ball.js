@@ -24,12 +24,15 @@ class Ball {
         this.socialDistancing = false;
         this.showsSymptoms = Math.random();
         this.needHospitalization = Math.random();
+        this.wouldBeTestAndTraced = Math.random();
 
         // mass is that of a sphere as opposed to circle
         // it *does* make a difference in how realistic it looks
         this.mass = this.radius * this.radius * this.radius;
 
-        this.status = 0; //0=helathy, 1=sick+symptomatic, 2=sick+unsymptomatic, 3=recovered
+        this.status = 0; //0=helathy, 1=sick+symptomatic, 2=sick+unsymptomatic, 3=recovered, 4=dead
+        this.tested = false;
+        this.testSD = false;
         this.maxCollisionMemory = 25
         this.collisionIndex = 0
         this.collisionHistory = [];
@@ -56,17 +59,17 @@ class Ball {
         }
     }
 
-    goToMarket(marketBox, rate, duration, time)
+    goToMarket(marketBox, rate, time, duration)
     {
         if(Math.random() < rate && this.ghostFuture == false && this.ghostMode == false)
         {
             this.socialDistancing = false;
-            this.ghostTo(marketBox.randomX(), marketBox.randomY(), true, duration + time, this.box);
+            this.ghostTo(marketBox.randomX(), marketBox.randomY(), true, time + duration, this.box);
             this.switchBox(marketBox);
         }
     }
 
-    hospitalize(hospitalBox, rate)
+    hospitalize(hospitalBox, rate, time)
     {
         if(this.status == 1 && this.needHospitalization < rate && this.ghostFuture == false && this.ghostMode == false)
         {
@@ -75,7 +78,7 @@ class Ball {
         }
     }
 
-    ghostTo(x, y, returnHome=false, time=0, oldBox=null)
+    ghostTo(x, y, returnHome=false, returnTime=0, oldBox=null)
     {
         this.ghostMode = true;
         this.ballSpeed *= 4;
@@ -86,7 +89,7 @@ class Ball {
         }
         this.ghostFuture = returnHome;
         this.ghostReturn = [this.x, this.y];
-        this.ghostReturnTime = time + this.ghostTurns;
+        this.ghostReturnTime = returnTime + this.ghostTurns;
         this.ghostReturnBox = oldBox;
         let angle = Math.atan2(y-this.y, x-this.x);
         this.dx = this.ballSpeed * Math.cos(angle);
@@ -131,7 +134,7 @@ class Ball {
     collide(other, transmission, time, symptomStartTime, recoverTime)
     {
         //tracing data
-        let collisionInfo = {"ball":other.id, "meInfectious": this.isSick(), "themInfectious": other.isSick(), "time": time}
+        let collisionInfo = {"ball":other, "meInfectious": this.isSick(), "themInfectious": other.isSick(), "time": time}
         this.collisionHistory[this.collisionIndex % this.maxCollisionMemory] = collisionInfo;
         this.collisionIndex += 1;
 
@@ -149,9 +152,33 @@ class Ball {
         this.status = 2;
     }
 
-    testSick(){
-        //set some variable as known sick
+    randomTest(rate, inceptionRate, numContacts, quarantineMode, hospitalBox=null){
+        if(this.wouldBeTestAndTraced < rate && this.status == 1 && !this.tested)
+        {
+            this.testAndTrace(rate, inceptionRate, numContacts, quarantineMode, hospitalBox);
+        }
     }
+
+    testAndTrace(rate, inceptionRate, numContacts, quarantineMode, hospitalBox=null)
+    {
+        if(this.wouldBeTestAndTraced < rate && this.isSick() && !this.tested)
+        {
+            this.tested = true;
+            this.testSD = !quarantineMode;
+            if(quarantineMode && this.ghostFuture == false && this.ghostMode == false)
+            {
+                this.ghostTo(hospitalBox.randomX(), hospitalBox.randomY(), true, this.infectionEnd, this.box);
+                this.switchBox(hospitalBox);
+            }
+            for(let i=this.collisionIndex-1;i >=0 && i >= this.collisionIndex - numContacts;i--)
+            {
+                let collision = this.collisionHistory[i % this.maxCollisionMemory]
+                collision["ball"].testAndTrace(inceptionRate, inceptionRate, numContacts, quarantineMode, hospitalBox);
+            }
+        }
+    }
+
+
 
     testAntibodies(){
         return this.isSick() || this.status == 3;
@@ -178,7 +205,7 @@ class Ball {
     }
 
     socialDistance(percentCompliance){
-        this.socialDistancing = this.socialDistancingWillingness < percentCompliance && !this.ghostMode && !this.ghostFuture;
+        this.socialDistancing = ((this.socialDistancingWillingness < percentCompliance) || (this.isSick() && this.tested && this.testSD)) && !this.ghostMode && !this.ghostFuture;
     }
 
     draw(ctx) {
@@ -209,6 +236,9 @@ class Ball {
         if(this.status == 0){
             return "lightblue";
         }
+        //if((this.status == 1 || this.status == 2) && this.tested){
+        //    return "purple";
+        //}
         if(this.status == 1){
             return "red";
         }
