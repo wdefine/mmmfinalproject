@@ -1,29 +1,140 @@
-<doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-	<meta charset="utf-8">
-	<title>pewpew</title>
-	<link rel="icon" href="favicon.ico" type="image/x-icon" />
-	<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
-	<link rel="stylesheet" href="index.css">
-	<link href='https://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+  <meta charset="utf-8">
+  <title>Covid19 Simulator</title>
+  <link rel="stylesheet" href="./bower_components/chartist/dist/chartist.min.css">
+  <style>
+
+  body {
+    background-color: rgb(252, 255, 255);
+    text-align: center;
+    font-family: Ubuntu Mono;
+  }
+
+  #title {
+    color: black;
+    font-size: 200%;
+    font-style: normal;
+    margin: 1px;
+    border: 1px;
+  }
+
+  #balls {
+    margin-top: 5px;
+  }
+
+  #myCanvas {
+    margin-top: -20px;
+  }
+
+  section.footer {
+    color: black;
+    font-family: Ubuntu Mono;
+    font-style: normal;
+    font-size: small;
+  }
+  #disclaimer {
+  	font-size: 74%;
+  	color: gray;
+  }
+
+  .chart {
+      height: 200px;
+      width: 600px;
+  }
+
+  .flex-container {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .ct-series-a .ct-line,
+  .ct-series-a .ct-point {
+    stroke: lightblue;
+  }
+
+  .ct-series-b .ct-line,
+  .ct-series-b .ct-point {
+    stroke: orange;
+  }
+
+  .ct-series-c .ct-line,
+  .ct-series-c .ct-point {
+    stroke: green;
+  }
+
+  .ct-series-d .ct-line,
+  .ct-series-d .ct-point {
+    stroke: black;
+  }
+
+  </style>
 </head>
-<body>
+<body style="text-align: center">
+  <section>
+    <div id="title"><p id="balls" style="font-size: 15pt">Covid19 Simulator</p><br/></div>
+    <div><p id="balls" style="font-size: 12pt">Click on sim to run/pause</p><br/></div>
+  </section>
 
-<div class="container">
+  <!--This div outlines a simulation object. You can place as many of these in html as you like.
+      Each sim must have a unique id, and each chart and canvas element must have a unique id.-->
+  <div class="sim flex-container" id="sim1">
+    <div class="ct-chart ct-golden-section chart" id="chart1"></div>
+    <div>
+      <canvas onclick="pause()" class="canvas" id="canvas1" width="800px" height="600px" style="border:1px solid black;"></canvas>
+    </div>
+    <div class="controls">
+      <button onclick="reset()"> Reset</button>
+      <button onclick="pause()"> Play/Pause</button>
+      <p>Social Distancing Compliance (0-1) (D)</p>
+      <input class="socialDistanceCompliance" onchange="update()" type="number" value="0.2" step="0.01" min="0" max="1">
+      <p>Infection Rate (0-1) (D)</p>
+      <input class="infectionRate" onchange="update()" type="number" value="0.7" step="0.01" min="0" max="1">
+      <p>Morbidity Rate (0-1) (D) </p>
+      <input class="morbidityRate" onchange="update()" type="number" value="0.03" step="0.001" min="0" max="1">
+      <p>Symptomatic Rate (0-1)</p>
+      <input class="symptomaticRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
+      <p>Symptom Start Time (1+) </p>
+      <input class="symptomStartTime" onchange="update()" type="number" value="50" step="1" min="1" max="1000">
+      <p>Recover Time (1+) </p>
+      <input class="recoverTime" onchange="update()" type="number" value="100" step="1" min="1" max="1000">
+      <p>Number of People (1+)</p>
+      <input class="numStartingBalls" onchange="update()" type="number" value="400" step="1" min="1" max="1000">
+      <p>Initial Num Sick People (1+)</p>
+      <input class="startingSickBalls" onchange="update()" type="number" value="2" step="1" min="1" max="1000">
+      <p>Speed (0+)</p>
+      <input class="ballSpeed" onchange="update()" type="number" value="12" step="1" min="1" max="30">
+      <p>Communities: Number (1+) </p>
+      <input class="numCommunities" onchange="update()" type="number" value="1" step="1" min="1" max="100">
+      <p>Communities: Switch Rate (D) </p>
+      <input class="switchCommunityRate" onchange="update()" type="number" value="0.005" step="0.001" min="0" max="1">
+      <p>Market: Exists (0/1) </p>
+      <input class="hasMarketBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
+      <p>Market: Shopping Rate (0-1) (D) </p>
+      <input class="marketFrequency" onchange="update()" type="number" value="0.001" step="0.001" min="0" max="1">
+      <p>Market: Shopping Time (1+) (D) </p>
+      <input class="marketDuration" onchange="update()" type="number" value="20" step="1" min="1" max="1000">
+      <p>Hospital: Exists (0/1)</p>
+      <input class="hasHospitalBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
+      <p>Hospital: Admission Rate (0-1)</p>
+      <input class="hospitalizationRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
+      <p>Test and Trace: Test Symptomatic Rate (0-1)</p>
+      <input class="testAndTraceRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
+      <p>Test and Trace: Recursive Rate (0-1)</p>
+      <input class="testAndTraceInceptionRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
+      <p>Test and Trace: Test Number of Contacts (0-25)</p>
+      <input class="testAndTraceNumContacts" onchange="update()" type="number" value="10" step="1" min="0" max="25">
+      <p>Test and Trace: Quarantine Mode: 0=At Home, 1=In Hospital </p>
+      <input class="testAndTraceQuarantineMode" onchange="update()" type="number" value="0" step="1" min="0" max="1">
+    </div>
+  </div>
 
-<div class="side"></div>
 
-<div class="main">
-
-	<div class="apps">
-			<a href="ballsballsballs\index.html">>> 2d ball collisions </a>
-	</div>
-
-</div>
-
-<div class="side"></div>
-</div>
-
+  <!--Place these scripts at end-->
+  <script src="./bower_components/chartist/dist/chartist.min.js"></script>
+  <script src="./js/box.js"></script>
+  <script src="./js/ball.js"></script>
+  <script src="./js/simulation.js"></script>
 </body>
 </html>
