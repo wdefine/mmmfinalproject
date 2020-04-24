@@ -236,9 +236,9 @@ class Ball {
         if(this.status == 0){
             return "lightblue";
         }
-        //if((this.status == 1 || this.status == 2) && this.tested){
-        //    return "purple";
-        //}
+        if((this.status == 1 || this.status == 2) && this.tested){
+            return "purple";
+        }
         if(this.status == 1){
             return "red";
         }
