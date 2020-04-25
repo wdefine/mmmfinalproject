@@ -154,9 +154,13 @@ class Simulation {
         let xOffset = sideBoxes ? 100 : 0;
         let boxPoints = splitBoxesEvenly(this.numCommunities, width, this.canvas.height, xOffset, 0);
         let ballsPerBox = Math.floor(this.numStartingBalls/this.numCommunities);
+        let communitiesExtraSickBall = [];
+        for(let i=0;i<this.startingSickBalls%this.numCommunities;i+= 1){
+            communitiesExtraSickBall.push(i*Math.floor(this.numCommunities/(this.startingSickBalls%this.numCommunities)));
+        }
         for(let i=0;i<this.numCommunities;i++)
         {
-            let numSickBalls = Math.floor(this.startingSickBalls/this.numCommunities) + (i < this.startingSickBalls%this.numCommunities) ? 1 : 0;
+            let numSickBalls = Math.floor(this.startingSickBalls/this.numCommunities) + communitiesExtraSickBall.includes(i);
             this.boxCommunities.push(new Box(boxPoints[i], this.ctx, "black", 2));
             this.addXBallsToBox(this.boxCommunities[i], ballsPerBox,  numSickBalls);
         }
@@ -203,13 +207,12 @@ class Simulation {
 
     updateControl(name, value)
     {
-        const dynamicControls = ["socialDistanceCompliance", "infectionRate", "morbidityRate", "switchCommunityRate",
-                                 "marketDuration", "marketFrequency"];
+        const nonDynamicControls = ["numStartingBalls", "startingSickBalls", "ballSpeed", "numCommunities", "hasMarketBox", "hasHospitalBox"];
         if(name in this.config)
         {
             this.config[name] = value;
         }
-        if(dynamicControls.includes(name))
+        if(!nonDynamicControls.includes(name))
         {
             this[name] = value;
         }
@@ -271,15 +274,15 @@ class Simulation {
             let ball1 = collisions[i][0];
             let ball2 = collisions[i][1];
             let transmission = Math.random() < this.infectionRate;
-            ball1.collide(ball2, transmission, this.time, this.symptomStartTime, this.recoverTime);
-            ball2.collide(ball1, transmission, this.time, this.symptomStartTime, this.recoverTime);
+            ball1.collide(ball2, transmission, this.time, this.symptomaticRate, this.symptomStartTime, this.recoverTime);
+            ball2.collide(ball1, transmission, this.time, this.symptomaticRate, this.symptomStartTime, this.recoverTime);
         }
     }
 
     updateBalls()
     {
         for(let i=0;i<this.ballArray.length;i++){
-            this.ballArray[i].updateStatus(this.time, this.morbidityRate, this.symptomaticRate);
+            this.ballArray[i].updateStatus(this.time, this.morbidityRate, this.hospitalizationRate);
         }
     }
 
@@ -310,7 +313,7 @@ class Simulation {
     {
         for (let i=0;i<this.ballArray.length;i++)
         {
-            this.ballArray[i].hospitalize(this.boxHospital, this.hospitalizationRate, this.time);
+            this.ballArray[i].hospitalize(this.boxHospital, this.time);
         }
     }
 
@@ -478,7 +481,11 @@ function update(event)
     let [sim, e] = simAndTargetFromEvent(event);
     if(sim)
     {
-        sim.updateControl(e.className, ParseFloat(e.value));
+        let val = parseFloat(e.value);
+        if(val != NaN){
+            sim.updateControl(e.className, val);
+        }
+        
     }
 }
 

@@ -20,10 +20,8 @@ class Ball {
         this.infectionEnd = 0;
         
         this.socialDistancingWillingness = Math.random();
-        this.dieProbability = Math.random();
         this.socialDistancing = false;
         this.showsSymptoms = Math.random();
-        this.needHospitalization = Math.random();
         this.wouldBeTestAndTraced = Math.random();
 
         // mass is that of a sphere as opposed to circle
@@ -31,8 +29,10 @@ class Ball {
         this.mass = this.radius * this.radius * this.radius;
 
         this.status = 0; //0=helathy, 1=sick+symptomatic, 2=sick+unsymptomatic, 3=recovered, 4=dead
-        this.tested = false;
-        this.testSD = false;
+        this.testedSick = false;
+        this.willHospitalize = false;
+        this.willTestAndTrace = false;
+        this.homeQuarantine = false;
         this.maxCollisionMemory = 25
         this.collisionIndex = 0
         this.collisionHistory = [];
@@ -69,10 +69,11 @@ class Ball {
         }
     }
 
-    hospitalize(hospitalBox, rate, time)
+    hospitalize(hospitalBox, time)
     {
-        if(this.status == 1 && this.needHospitalization < rate && this.ghostFuture == false && this.ghostMode == false)
+        if(this.status == 1 && this.willHospitalize && this.ghostFuture == false && this.ghostMode == false)
         {
+            this.willHospitalize = false;
             this.ghostTo(hospitalBox.randomX(), hospitalBox.randomY(), true, this.infectionEnd, this.box);
             this.switchBox(hospitalBox);
         }
@@ -131,7 +132,7 @@ class Ball {
         }
     }
     
-    collide(other, transmission, time, symptomStartTime, recoverTime)
+    collide(other, transmission, time, symptomaticRate, symptomStartTime, recoverTime)
     {
         //tracing data
         let collisionInfo = {"ball":other, "meInfectious": this.isSick(), "themInfectious": other.isSick(), "time": time}
@@ -140,40 +141,46 @@ class Ball {
 
         //infection
         if(this.status == 0 && other.isSick() && transmission){
-            this.getSick(time, recoverTime, symptomStartTime);
+            this.getSick(time, recoverTime, symptomaticRate, symptomStartTime);
         }
     }
 
-    getSick(time, recoverTime, symptomStartTime)
+    getSick(time, recoverTime, symptomaticRate, symptomStartTime)
     {
         this.infectionStart = time;
-        this.symptomsStart = time + symptomStartTime;
+        let developsSymptoms = this.showsSymptoms < symptomaticRate;
+        this.symptomsStart = developsSymptoms ? (time + symptomStartTime) : time + recoverTime*10 + 10000;
         this.infectionEnd = time + recoverTime;
         this.status = 2;
     }
 
     randomTest(rate, inceptionRate, numContacts, quarantineMode, hospitalBox=null){
-        if(this.wouldBeTestAndTraced < rate && this.status == 1 && !this.tested)
+        if(this.willTestAndTrace < rate && this.status == 1)
         {
-            this.testAndTrace(rate, inceptionRate, numContacts, quarantineMode, hospitalBox);
+            this.willTestAndTrace = false;
+            let trace_set = new Set()
+            this.testAndTrace(trace_set, inceptionRate, numContacts, quarantineMode, hospitalBox);
         }
     }
 
-    testAndTrace(rate, inceptionRate, numContacts, quarantineMode, hospitalBox=null)
+    testAndTrace(trace_set, inceptionRate, numContacts, quarantineMode, hospitalBox=null)
     {
-        if(this.wouldBeTestAndTraced < rate && this.isSick() && !this.tested)
+        if(this.isSick() && !trace_set.has(this.id) && !this.testedSick)
         {
-            this.tested = true;
-            this.testSD = !quarantineMode;
-            if(quarantineMode && this.ghostFuture == false && this.ghostMode == false)
+            trace_set.add(this.id);
+            this.testedSick = true;
+            if (quarantineMode)
             {
-                this.ghostTo(hospitalBox.randomX(), hospitalBox.randomY(), true, this.infectionEnd, this.box);
-                this.switchBox(hospitalBox);
+                this.willHospitalize = true;
+            }
+            else
+            {
+                this.homeQuarantine = true;
             }
             for(let i=this.collisionIndex-1;i >=0 && i >= this.collisionIndex - numContacts;i--)
             {
                 let collision = this.collisionHistory[i % this.maxCollisionMemory]
-                collision["ball"].testAndTrace(inceptionRate, inceptionRate, numContacts, quarantineMode, hospitalBox);
+                collision["ball"].testAndTrace(trace_set, inceptionRate, numContacts, quarantineMode, hospitalBox);
             }
         }
     }
@@ -184,13 +191,19 @@ class Ball {
         return this.isSick() || this.status == 3;
     }
 
-    updateStatus(time, morbidityRate, symptomaticRate){
-        if(this.isSick() && (time >= this.symptomsStart) && this.showsSymptoms < symptomaticRate)
+    updateStatus(time, morbidityRate, hospitalizationRate, testAndTraceRate){
+        if(this.isSick() && (time >= this.symptomsStart))
         {
             this.status = 1;
+            if(this.showsSymptoms < hospitalizationRate ){
+                this.willHospitalize = true;
+            }
+            if(this.wouldBeTestAndTraced < testAndTraceRate){
+                this.willTestAndTrace = true;
+            }
         }
         if(this.isSick() && (time >= this.infectionEnd)){
-            if(this.dieProbability < morbidityRate && this.status == 1)
+            if(this.showsSymptoms < morbidityRate)
             {
                 this.dx = 0;
                 this.dy = 0;
@@ -205,7 +218,7 @@ class Ball {
     }
 
     socialDistance(percentCompliance){
-        this.socialDistancing = ((this.socialDistancingWillingness < percentCompliance) || (this.isSick() && this.tested && this.testSD)) && !this.ghostMode && !this.ghostFuture;
+        this.socialDistancing = ((this.socialDistancingWillingness < percentCompliance) || (this.isSick() && this.testedSick && this.homeQuarantine)) && !this.ghostMode && !this.ghostFuture;
     }
 
     draw(ctx) {
@@ -236,7 +249,7 @@ class Ball {
         if(this.status == 0){
             return "lightblue";
         }
-        if((this.status == 1 || this.status == 2) && this.tested){
+        if((this.isSick()) && this.testedSick){
             return "purple";
         }
         if(this.status == 1){
