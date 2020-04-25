@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Covid19 Simulator</title>
+  <link rel="stylesheet" href="../bower_components/chartist/dist/chartist.min.css">
+  <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+  <style>
+    /* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 10px 8px;
+  transition: 0.3s;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+
+  body {
+    background-color: rgb(252, 255, 255);
+    text-align: center;
+    font-family: Ubuntu Mono;
+  }
+
+  #title {
+    color: black;
+    font-size: 200%;
+    font-style: normal;
+    margin: 1px;
+    border: 1px;
+  }
+
+  #balls {
+    margin-top: 5px;
+  }
+
+  #myCanvas {
+    margin-top: -20px;
+  }
+
+  section.footer {
+    color: black;
+    font-family: Ubuntu Mono;
+    font-style: normal;
+    font-size: small;
+  }
+  #disclaimer {
+  	font-size: 74%;
+  	color: gray;
+  }
+
+  .chart {
+      height: 200px;
+      width: 600px;
+      align-content: center;
+  }
+
+  #controls{
+    border-color: black;
+  }
+
+  input{
+
+  }
+
+  .flex-container {
+    /*display: flex;
+    /*
+    flex-direction: row;
+    */
+  }
+  .flex-container2{
+    display: flex;
+    flex-direction: row;
+  }
+
+  .ct-series-a .ct-line,
+  .ct-series-a .ct-point {
+    stroke: lightblue;
+  }
+
+  .ct-series-b .ct-line,
+  .ct-series-b .ct-point {
+    stroke: orange;
+  }
+
+  .ct-series-c .ct-line,
+  .ct-series-c .ct-point {
+    stroke: green;
+  }
+
+  .ct-series-d .ct-line,
+  .ct-series-d .ct-point {
+    stroke: black;
+  }
+    .greenDot {
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  background-color: green;
+  display: inline-block;
+  }
+  .blueDot {
+    height: 8px;
+    width: 8px;
+    background-color: lightblue;
+    display: inline-block;
+    border-radius: 50%;
+   }
+  .blackDot {
+  height: 8px;
+  width: 8px;
+  background-color: black;
+  border-radius: 50%;
+  display: inline-block;
+}
+.yellowDot {
+  height: 8px;
+  width: 8px;
+  align-content: center;
+  border-radius: 50%;
+  background-color: yellow;
+  display: inline-block;
+}
+.redDot {
+  height: 8px;
+  width: 8px;
+  align-content: center;
+  border-radius: 50%;
+  background-color: red;
+  display: inline-block;
+}
+  .greenLine {
+  height: 5px;
+  width: 20px;
+  background-color: green;
+  display: inline-block;
+  }
+  .blueLine {
+    height: 5px;
+    width: 20px;
+    background-color: lightblue;
+    display: inline-block;
+   }
+  .blackLine {
+  height: 5px;
+  width: 20px;
+  background-color: black;
+  display: inline-block;
+}
+.orangeLine {
+  height: 5px;
+  width: 20px;
+  align-content: center;
+  background-color: orange;
+  display: inline-block;
+}
+.center{
+  padding: 5px 0px;
+}
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+.tooltipUnderline{
+  border-bottom: 1px dotted black;
+}
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 400px;
+  background-color: black;
+  color: #fff;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -200px;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+ 
+  /* Position the tooltip text - see examples below! */
+  position: absolute;
+  z-index: 1;
+}
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+
+  </style>
+</head>
+<body style="text-align: center">
+  <section>
+    <div id="title"><p id="balls" style="font-size: 15pt">Covid19 Simulator</p><br/></div>
+    <p>Click through the tabs to the right and feel free to change the variables to see how the spread of diseases (like COVID-19) change based on several factors. See how the graph of disease spread changes over time based on your input!<br/>
+    Hover over variable names with dotted underlines to see a description of the variable </p>
+    <i>Note: This simulator is intended for interactive learning only and is not a true simulation of the real world. This tool should not be used to influence opinion or personal actions regarding the COVID-19 outbreak and should be seen as a fun and interactive tool only.</i>
+    <div><p id="balls" style="font-size: 12pt">Click on sim to run/pause</p><br/></div>
+  </section>
+
+  <!--This div outlines a simulation object. You can place as many of these in html as you like.
+      Each sim must have a unique id, and each chart and canvas element must have a unique id.-->
+  <div class="sim flex-container" id="sim1">
+    
+    <!--<div class="ct-chart ct-golden-section chart" id="chart1"></div>-->
+    <div class= "flex-container2" id="sim1">
+    <div>
+      <span class="blueDot"></span>&nbsp; Uninfected &emsp;
+      <span class="yellowDot"></span>&nbsp; Infected: No Symptoms &emsp;
+      <span class="redDot"></span>&nbsp; Infected: Symptoms &emsp;
+      <span class="greenDot"></span>&nbsp; Recovered &emsp;
+      <span class="blackDot"></span>&nbsp; Dead &emsp;
+      <canvas onclick="pause()" class="canvas" id="canvas1" width="650px" height="600px" style="border:1px solid black;"></canvas>
+    </div>
+    <div class="rightColumn">
+    <div class="tabpanel">
+    <div class="tab">
+      <button class="tablinks" onClick="openCity(event, 'Basic')" id="basicTab">Basic</button>
+      <button class="tablinks" onclick="openCity(event, 'Market')">Market</button>
+      <button class="tablinks" onclick="openCity(event, 'Hospital')">Hospital</button>
+      <button class="tablinks" onclick="openCity(event, 'TestTrace')">Test and Trace</button>
+      <button class="tablinks" onclick="openCity(event, 'Communities')">Communities</button>
+      <button class="tablinks" onclick="openCity(event, 'Advanced')">Advanced</button>
+    </div>
+    <!--<div class="controls">-->
+    <div style="align-content: left">
+      <div id="Basic" class="tabcontent">
+        <!--<div style="float: left">-->
+          <div class="tooltip">
+            <p class="tooltipUnderline">Social Distancing Compliance (0-1) (D)</p>
+            <p class="tooltiptext">
+              Social distancing is defined by the CDC as staying at least 6 feet from other people, and avoiding gatherings.  This is an effective strategy to minimize the spread of COVID-19 because the spread of COVID-19 occurs when pathogens are transmitted by respiratory droplets.  Respiratory droplets can spread as far as 6 feet from their source, so when individuals are in close contact with one another, they risk spreading the disease through talking, coughing, or sneezing in particular. 
+            </p>
+            <input class="socialDistanceCompliance" onchange="update()" type="number" value="0.2" step="0.01" min="0" max="1">
+          </div>      
+          <p>Infection Rate (0-1) (D)</p>
+          <input class="infectionRate" onchange="update()" type="number" value="0.7" step="0.01" min="0" max="1">
+          <p>Morbidity Rate (0-1) (D) </p>
+          <input class="morbidityRate" onchange="update()" type="number" value="0.03" step="0.001" min="0" max="1">
+        <!--</div>-->
+        <!--<div style="float: right">ht</div>-->
+      </div>
+      <div id="Advanced" class="tabcontent">
+        <p>Symptomatic Rate (0-1)</p>
+        <input class="symptomaticRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
+        <p>Symptom Start Time (1+) </p>
+        <input class="symptomStartTime" onchange="update()" type="number" value="50" step="1" min="1" max="1000">
+        <p>Recover Time (1+) </p>
+        <input class="recoverTime" onchange="update()" type="number" value="100" step="1" min="1" max="1000">
+        <p>Number of People (1+)</p>
+        <input class="numStartingBalls" onchange="update()" type="number" value="400" step="1" min="1" max="1000">
+        <p>Initial Num Sick People (1+)</p>
+        <input class="startingSickBalls" onchange="update()" type="number" value="2" step="1" min="1" max="1000">
+        <p>Speed (0+)</p>
+        <input class="ballSpeed" onchange="update()" type="number" value="12" step="1" min="1" max="30">
+      </div>
+      <div id="Communities" class="tabcontent">
+        <p>Communities: Number (1+) </p>
+        <input class="numCommunities" onchange="update()" type="number" value="1" step="1" min="1" max="100">
+        <p>Communities: Switch Rate (D) </p>
+        <input class="switchCommunityRate" onchange="update()" type="number" value="0.005" step="0.001" min="0" max="1">
+      </div>
+      <div id="Market" class="tabcontent">
+
+        <p>Market: Exists (0/1) </p>
+        <input class="hasMarketBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
+        <p>Market: Shopping Rate (0-1) (D) </p>
+        <input class="marketFrequency" onchange="update()" type="number" value="0.001" step="0.001" min="0" max="1">
+        <p>Market: Shopping Time (1+) (D) </p>
+        <input class="marketDuration" onchange="update()" type="number" value="20" step="1" min="1" max="1000">
+      </div>
+      <div id="Hospital" class="tabcontent">
+        <p>Hospital: Exists (0/1)</p>
+        <input class="hasHospitalBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
+        <p>Hospital: Admission Rate (0-1)</p>
+        <input class="hospitalizationRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
+      </div>
+      <div id="TestTrace" class="tabcontent">
+        <p>Test and Trace: Test Symptomatic Rate (0-1)</p>
+        <input class="testAndTraceRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
+        <p>Test and Trace: Recursive Rate (0-1)</p>
+        <input class="testAndTraceInceptionRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
+        <p>Test and Trace: Test Number of Contacts (0-25)</p>
+        <input class="testAndTraceNumContacts" onchange="update()" type="number" value="10" step="1" min="0" max="25">
+        <p>Test and Trace: Quarantine Mode: 0=At Home, 1=In Hospital </p>
+        <input class="testAndTraceQuarantineMode" onchange="update()" type="number" value="0" step="1" min="0" max="1">
+      </div>
+      
+    <!--</div>-->
+  </div>
+  </div>
+      <button onclick="pause()"> Play/Pause</button>
+
+      <button onclick="reset()"> Reset</button>
+
+  <div class="ct-chart ct-golden-section chart" id="chart1"></div>
+  <div style="float: left; display: flex; left; padding-left: 5px;">
+    <div style="vertical-align: text-top;">
+      <span class="blueLine"></span> &nbsp; Healthy &emsp;
+      <span class="orangeLine"></span> &nbsp; Sick &emsp;
+      <span class="greenLine"></span>&nbsp; Recovered &emsp;
+      <span class="blackLine"></span>&nbsp; Dead &emsp;
+    </div>
+  </div>
+  </div>
+</div>
+  </div>
+  <script type="text/javascript">
+    //Tabs 
+    document.getElementById("Basic").style.display = "block";
+    document.getElementById("basicTab").className += " active";
+    function openCity(evt, tabName) {
+      // Declare all variables
+      var i, tabcontent, tablinks;
+
+      // Get all elements with class="tabcontent" and hide them
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+
+      // Get all elements with class="tablinks" and remove the class "active"
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+
+      // Show the current tab, and add an "active" class to the button that opened the tab
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+  </script>
+
+
+  <!--Place these scripts at end-->
+  <script src="../bower_components/chartist/dist/chartist.min.js"></script>
+  <script src="../js/box.js"></script>
+  <script src="../js/ball.js"></script>
+  <script src="../js/simulation.js"></script>
+</body>
+</html>
