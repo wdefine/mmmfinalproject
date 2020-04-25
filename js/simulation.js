@@ -478,7 +478,7 @@ function update(event)
     let [sim, e] = simAndTargetFromEvent(event);
     if(sim)
     {
-        sim.updateControl(e.className, e.value);
+        sim.updateControl(e.className, ParseFloat(e.value));
     }
 }
 
