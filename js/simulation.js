@@ -464,7 +464,16 @@ function simAndTargetFromEvent(event)
         event = window.event;
     };
     let e = (event.target || event.srcElement)
-    let pid = e.parentNode.parentNode.id;
+    let p = e.parentNode;
+    while(1)
+    {
+        if (p.id && document.getElementById(p.id).className.includes("sim"))
+        {
+            break;
+        }
+        p = p.parentNode;
+    }
+    let pid = p.id;
     let sim = null;
     for(let i=0;i<sims.length;i++)
     {
