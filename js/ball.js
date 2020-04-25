@@ -249,9 +249,11 @@ class Ball {
         if(this.status == 0){
             return "lightblue";
         }
+        /*
         if((this.isSick()) && this.testedSick){
             return "purple";
         }
+        */
         if(this.status == 1){
             return "red";
         }
