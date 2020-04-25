@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Covid19 Simulator</title>
-  <link rel="stylesheet" href="./bower_components/chartist/dist/chartist.min.css">
+  <link rel="stylesheet" href="../bower_components/chartist/dist/chartist.min.css">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
   <style>
@@ -253,7 +253,7 @@
     <!--<div class="controls">-->
     <div style="align-content: left">
       <div id="Basic" class="tabcontent">
-        <div style="float: left">
+        <!--<div style="float: left">-->
           <div class="tooltip">
             <p class="tooltipUnderline">Social Distancing Compliance (0-1) (D)</p>
             <p class="tooltiptext">
@@ -265,8 +265,8 @@
           <input class="infectionRate" onchange="update()" type="number" value="0.7" step="0.01" min="0" max="1">
           <p>Morbidity Rate (0-1) (D) </p>
           <input class="morbidityRate" onchange="update()" type="number" value="0.03" step="0.001" min="0" max="1">
-        </div>
-        <div style="float: right">ht</div>
+        <!--</div>-->
+        <!--<div style="float: right">ht</div>-->
       </div>
       <div id="Advanced" class="tabcontent">
         <p>Symptomatic Rate (0-1)</p>
@@ -361,9 +361,9 @@
 
 
   <!--Place these scripts at end-->
-  <script src="./bower_components/chartist/dist/chartist.min.js"></script>
-  <script src="./js/box.js"></script>
-  <script src="./js/ball.js"></script>
-  <script src="./js/simulation.js"></script>
+  <script src="../bower_components/chartist/dist/chartist.min.js"></script>
+  <script src="../js/box.js"></script>
+  <script src="../js/ball.js"></script>
+  <script src="../js/simulation.js"></script>
 </body>
 </html>
