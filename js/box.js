@@ -1,7 +1,7 @@
 const COLLISIONVELOCITYCONSTANT = true;
 
 class Box {
-    constructor(points, ctx, color, margin)
+    constructor(points, ctx, color, margin, isHospital=false)
     {
         //points must be IN ORDER around square, order doesn't matter
         if(margin > 0)
@@ -31,6 +31,7 @@ class Box {
 
         this.ctx = ctx;
         this.color = color;
+        this.isHospital = false;
         this.ballArray = [];
     }
 
@@ -125,6 +126,9 @@ class Box {
 
     ballCollisions()
     {
+        if(this.isHospital){
+            return;
+        }
         let collisions = []
         for (let i=this.ballArray.length-1; i>=0; i--) {
             if( this.ballArray[i].ghostMode)
@@ -149,7 +153,7 @@ class Box {
                     
                 }   
                 /*SOCIAL DISTANCING Magnetic Repulsion */
-                else if(ob1.socialDistancing && dist < (ob1.radius + ob2.radius)*4)     
+                else if(ob1.socialDistancing && dist < (ob1.radius + ob2.radius)*3)     
                 {
                     let angle = Math.atan2(ob1.dy - ob2.dy, ob1.dx - ob2.dx);
                     angle += Math.PI/2;
@@ -162,7 +166,7 @@ class Box {
                         ob1.y -= 2*Math.sin(angle);
                     }
                 }
-                else if(ob2.socialDistancing && dist < (ob1.radius + ob2.radius)*4)
+                else if(ob2.socialDistancing && dist < (ob1.radius + ob2.radius)*3)
                 {
                     let angle = Math.atan2(ob1.dy - ob2.dy, ob1.dx - ob2.dx);
                     angle -= Math.PI/2;

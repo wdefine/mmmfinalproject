@@ -71,7 +71,7 @@ class Ball {
 
     hospitalize(hospitalBox, time)
     {
-        if(this.status == 1 && this.willHospitalize && this.ghostFuture == false && this.ghostMode == false)
+        if(this.willHospitalize && this.ghostFuture == false && this.ghostMode == false)
         {
             this.willHospitalize = false;
             this.ghostTo(hospitalBox.randomX(), hospitalBox.randomY(), true, this.infectionEnd, this.box);
@@ -159,11 +159,11 @@ class Ball {
         {
             this.willTestAndTrace = false;
             let trace_set = new Set()
-            this.testAndTrace(trace_set, inceptionRate, numContacts, quarantineMode, hospitalBox);
+            this.testAndTrace(trace_set, 1, inceptionRate, numContacts, quarantineMode, hospitalBox);
         }
     }
 
-    testAndTrace(trace_set, inceptionRate, numContacts, quarantineMode, hospitalBox=null)
+    testAndTrace(trace_set, traceRate, inceptionRate, numContacts, quarantineMode, hospitalBox=null)
     {
         if(this.isSick() && !trace_set.has(this.id) && !this.testedSick)
         {
@@ -179,8 +179,11 @@ class Ball {
             }
             for(let i=this.collisionIndex-1;i >=0 && i >= this.collisionIndex - numContacts;i--)
             {
-                let collision = this.collisionHistory[i % this.maxCollisionMemory]
-                collision["ball"].testAndTrace(trace_set, inceptionRate, numContacts, quarantineMode, hospitalBox);
+                if(Math.random() < traceRate)
+                {
+                    let collision = this.collisionHistory[i % this.maxCollisionMemory]
+                    collision["ball"].testAndTrace(trace_set, inceptionRate, inceptionRate, numContacts, quarantineMode, hospitalBox);
+                }
             }
         }
     }
@@ -249,11 +252,6 @@ class Ball {
         if(this.status == 0){
             return "lightblue";
         }
-        /*
-        if((this.isSick()) && this.testedSick){
-            return "purple";
-        }
-        */
         if(this.status == 1){
             return "red";
         }

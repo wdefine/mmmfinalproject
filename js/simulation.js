@@ -10,9 +10,6 @@ class Simulation {
         this.ctx = this.canvas.getContext("2d");
         this.config = simConfig;
 
-        //init parameters from simconfig
-
-
         this.reset();
     }
 
@@ -66,8 +63,7 @@ class Simulation {
     //chart updates chart
     chart() {
         this.updateChartingInfo();//add sir+ info to 
-        let divisor = 10;
-        let c = Chartist.Line("#" + this.chartID, {
+        Chartist.Line("#" + this.chartID, {
             //labels:[this.chartingInfo.l],
             series: [
               {name: "Susceptible", data: this.chartingInfo.s, color:"lightblue"},
@@ -147,7 +143,7 @@ class Simulation {
             }
             if(this.hasHospitalBox)
             {
-                this.boxHospital = new Box(hospitalBoxPoints, this.ctx, "red", 2);
+                this.boxHospital = new Box(hospitalBoxPoints, this.ctx, "red", 2, true);
             }
         }
         let width = sideBoxes ? this.canvas.width - 100 : this.canvas.width;
@@ -465,7 +461,8 @@ function simAndTargetFromEvent(event)
     };
     let e = (event.target || event.srcElement)
     let p = e.parentNode;
-    while(1)
+    //search for sim object up 4 layers
+    for(let i=0;i<10;i++)
     {
         if (p.id && document.getElementById(p.id).className.includes("sim"))
         {

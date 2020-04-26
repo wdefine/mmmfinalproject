@@ -234,129 +234,125 @@
 
   <!--This div outlines a simulation object. You can place as many of these in html as you like.
       Each sim must have a unique id, and each chart and canvas element must have a unique id.-->
-  <div class="sim flex-container" id="sim1">
+  <div class="flex-container">
     
     <!--<div class="ct-chart ct-golden-section chart" id="chart1"></div>-->
-    <div class= "flex-container2" id="sim1">
-    <div>
-      <span class="blueDot"></span>&nbsp; Uninfected &emsp;
-      <span class="yellowDot"></span>&nbsp; Infected: No Symptoms &emsp;
-      <span class="redDot"></span>&nbsp; Infected: Symptoms &emsp;
-      <span class="greenDot"></span>&nbsp; Recovered &emsp;
-      <span class="blackDot"></span>&nbsp; Dead &emsp;
-      <canvas onclick="pause()" class="canvas" id="canvas1" width="650px" height="600px" style="border:1px solid black;"></canvas>
-    </div>
-    <div class="rightColumn">
-    <div class="tabpanel">
-    <div class="tab">
-      <button class="tablinks" onClick="openCity(event, 'Basic')" id="basicTab">Basic</button>
-      <button class="tablinks" onclick="openCity(event, 'Market')">Market</button>
-      <button class="tablinks" onclick="openCity(event, 'Hospital')">Hospital</button>
-      <button class="tablinks" onclick="openCity(event, 'TestTrace')">Test and Trace</button>
-      <button class="tablinks" onclick="openCity(event, 'Communities')">Communities</button>
-      <button class="tablinks" onclick="openCity(event, 'Advanced')">Advanced</button>
-    </div>
-    <!--<div class="controls">-->
-    <div>
-      <div id="Basic" class="tabcontent">
-        <div style="width: 50%; float: left">
-          <i>The variables with (D) next to them will update the simulation immediately. All others require the reset button to be clicked</i>
-          <br/>
-          <div>
-            <p class="tooltipUnderline" onmouseover="showText('basic1info', 'basicPanel')">Social Distancing Compliance (0-1) (D)</p>
-            <p class="tooltiptext" id="basic1info" style="display: none;">
-              Social distancing is defined by the CDC as staying at least 6 feet from other people, and avoiding gatherings.  This is an effective strategy to minimize the spread of COVID-19 because the spread of COVID-19 occurs when pathogens are transmitted by respiratory droplets.  Respiratory droplets can spread as far as 6 feet from their source, so when individuals are in close contact with one another, they risk spreading the disease through talking, coughing, or sneezing in particular. 
-            </p>
-            <input class="socialDistanceCompliance" onchange="update()" type="number" value="0.2" step="0.01" min="0" max="1">
-          </div>      
-          <p onmouseover="showText('basic2info', 'basicPanel')">Infection Rate (0-1) (D)</p>
-          <p id="basic2info" style="display: none;">How rapidly the infection spreads?</p>
-          <input class="infectionRate" onchange="update()" type="number" value="0.7" step="0.01" min="0" max="1">
-          <p>Morbidity Rate (0-1) (D) </p>
-          <input class="morbidityRate" onchange="update()" type="number" value="0.03" step="0.001" min="0" max="1">
-        </div>
-        <div style="width: 50%; float: right" class="hoverShow"><p id="basicPanel"></p></div>
+    <div class= "sim flex-container2" id="sim1">
+      <div>
+        <span class="blueDot"></span>&nbsp; Uninfected &emsp;
+        <span class="yellowDot"></span>&nbsp; Infected: No Symptoms &emsp;
+        <span class="redDot"></span>&nbsp; Infected: Symptoms &emsp;
+        <span class="greenDot"></span>&nbsp; Recovered &emsp;
+        <span class="blackDot"></span>&nbsp; Dead &emsp;
+        <canvas onclick="pause()" class="canvas" id="canvas1" width="650px" height="600px" style="border:1px solid black;"></canvas>
       </div>
-      <div id="Advanced" class="tabcontent" >
-        <div style="width: 50%; float: left">
-          <p>Symptomatic Rate (0-1)</p>
-          <input class="symptomaticRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
-          <p>Symptom Start Time (1+) </p>
-          <input class="symptomStartTime" onchange="update()" type="number" value="50" step="1" min="1" max="1000">
-          <p>Recover Time (1+) </p>
-          <input class="recoverTime" onchange="update()" type="number" value="100" step="1" min="1" max="1000">
-          <p>Number of People (1+)</p>
-          <input class="numStartingBalls" onchange="update()" type="number" value="400" step="1" min="1" max="1000">
-          <p>Initial Num Sick People (1+)</p>
-          <input class="startingSickBalls" onchange="update()" type="number" value="2" step="1" min="1" max="1000">
-          <p>Speed (0+)</p>
-          <input class="ballSpeed" onchange="update()" type="number" value="12" step="1" min="1" max="30">
+      <div class="rightColumn">
+        <div class="tabpanel">
+        <div class="tab">
+          <button class="tablinks" onClick="openCity(event, 'Basic')" id="basicTab">Basic</button>
+          <button class="tablinks" onclick="openCity(event, 'Market')">Market</button>
+          <button class="tablinks" onclick="openCity(event, 'Hospital')">Hospital</button>
+          <button class="tablinks" onclick="openCity(event, 'TestTrace')">Test and Trace</button>
+          <button class="tablinks" onclick="openCity(event, 'Communities')">Communities</button>
+          <button class="tablinks" onclick="openCity(event, 'Advanced')">Advanced</button>
         </div>
-        <div style="width: 50%; float: right">
-        </div>
-      </div>
-      <div id="Communities" class="tabcontent">
-        <div style="width: 50%; float: left">
-          <p>Communities: Number (1+) </p>
-          <input class="numCommunities" onchange="update()" type="number" value="1" step="1" min="1" max="100">
-          <p>Communities: Switch Rate (D) </p>
-          <input class="switchCommunityRate" onchange="update()" type="number" value="0.005" step="0.001" min="0" max="1">
-        </div>
-        <div style="width: 50%; float: right">
-        </div>
-      </div>
-        <div id="Market" class="tabcontent">
-          <div style="width: 50%; float: left">
-            <p>Market: Exists (0/1) </p>
-            <input class="hasMarketBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
-            <p>Market: Shopping Rate (0-1) (D) </p>
-            <input class="marketFrequency" onchange="update()" type="number" value="0.001" step="0.001" min="0" max="1">
-            <p>Market: Shopping Time (1+) (D) </p>
-            <input class="marketDuration" onchange="update()" type="number" value="20" step="1" min="1" max="1000">
+        <div>
+          <div id="Basic" class="tabcontent">
+            <div style="width: 50%; float: left">
+              <br/>
+              <div>
+                <p class="tooltipUnderline" onmouseover="showText('basic1info', 'basicPanel')">Social Distancing Compliance (0-1) </p>
+                <p class="tooltiptext" id="basic1info" style="display: none;">
+                  Social distancing is defined by the CDC as staying at least 6 feet from other people, and avoiding gatherings.  This is an effective strategy to minimize the spread of COVID-19 because the spread of COVID-19 occurs when pathogens are transmitted by respiratory droplets.  Respiratory droplets can spread as far as 6 feet from their source, so when individuals are in close contact with one another, they risk spreading the disease through talking, coughing, or sneezing in particular. 
+                </p>
+                <input class="socialDistanceCompliance" onchange="update()" type="number" value="0.2" step="0.01" min="0" max="1">
+              </div>      
+              <p onmouseover="showText('basic2info', 'basicPanel')">Infection Rate (0-1) </p>
+              <p id="basic2info" style="display: none;">How rapidly the infection spreads?</p>
+              <input class="infectionRate" onchange="update()" type="number" value="0.7" step="0.01" min="0" max="1">
+              <p>Morbidity Rate (0-1) </p>
+              <input class="morbidityRate" onchange="update()" type="number" value="0.03" step="0.001" min="0" max="1">
+              <p>Test and Trace: Test Symptomatic Rate (0-1)</p>
+              <input class="testAndTraceRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
+            </div>
+            <div style="width: 50%; float: right" class="hoverShow"><p id="basicPanel"></p></div>
           </div>
-          <div style="width: 50%; float: left"></div>
+          <div id="Advanced" class="tabcontent" >
+            <div style="width: 50%; float: left">
+              <p>Symptomatic Rate (0-1)</p>
+              <input class="symptomaticRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
+              <p>Symptom Start Time (1+) </p>
+              <input class="symptomStartTime" onchange="update()" type="number" value="50" step="1" min="1" max="1000">
+              <p>Recover Time (1+) </p>
+              <input class="recoverTime" onchange="update()" type="number" value="100" step="1" min="1" max="1000">
+              <p>Number of People (1+)</p>
+              <input class="numStartingBalls" onchange="update()" type="number" value="400" step="1" min="1" max="1000">
+              <p>Initial Num Sick People (1+)</p>
+              <input class="startingSickBalls" onchange="update()" type="number" value="2" step="1" min="1" max="1000">
+              <p>Speed (0+)</p>
+              <input class="ballSpeed" onchange="update()" type="number" value="12" step="1" min="1" max="30">
+            </div>
+            <div style="width: 50%; float: right">
+            </div>
+          </div>
+          <div id="Communities" class="tabcontent">
+            <div style="width: 50%; float: left">
+              <p>Communities: Number (1+) </p>
+              <input class="numCommunities" onchange="update()" type="number" value="1" step="1" min="1" max="100">
+              <p>Communities: Switch Rate </p>
+              <input class="switchCommunityRate" onchange="update()" type="number" value="0.005" step="0.001" min="0" max="1">
+            </div>
+            <div style="width: 50%; float: right">
+            </div>
+          </div>
+          <div id="Market" class="tabcontent">
+            <div style="width: 50%; float: left">
+              <p>Market: Exists (0/1) </p>
+              <input class="hasMarketBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
+              <p>Market: Shopping Rate (0-1) </p>
+              <input class="marketFrequency" onchange="update()" type="number" value="0.001" step="0.001" min="0" max="1">
+              <p>Market: Shopping Time (1+) </p>
+              <input class="marketDuration" onchange="update()" type="number" value="20" step="1" min="1" max="1000">
+            </div>
+            <div style="width: 50%; float: left"></div>
+          </div>
+          <div id="Hospital" class="tabcontent">
+            <div style="width: 50%; float: left">
+              <p>Hospital: Exists (0/1)</p>
+              <input class="hasHospitalBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
+              <p>Hospital: Admission Rate (0-1)</p>
+              <input class="hospitalizationRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
+            </div>
+            <div style="width: 50%; float: right"></div>
+          </div>
+          <div id="TestTrace" class="tabcontent">
+            <div style="width: 50%; float: left">
+              <p>Test and Trace: Recursive Rate (0-1)</p>
+              <input class="testAndTraceInceptionRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
+              <p>Test and Trace: Test Number of Contacts (0-25)</p>
+              <input class="testAndTraceNumContacts" onchange="update()" type="number" value="10" step="1" min="0" max="25">
+              <p>Test and Trace: Quarantine Mode: 0=At Home, 1=In Hospital </p>
+              <input class="testAndTraceQuarantineMode" onchange="update()" type="number" value="0" step="1" min="0" max="1">
+            </div>
+          <div style="width: 50%; float: right"></div>
+          </div>
         </div>
-      <div id="Hospital" class="tabcontent">
-        <div style="width: 50%; float: left">
-          <p>Hospital: Exists (0/1)</p>
-          <input class="hasHospitalBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
-          <p>Hospital: Admission Rate (0-1)</p>
-          <input class="hospitalizationRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
         </div>
-        <div style="width: 50%; float: right"></div>
-      </div>
-      <div id="TestTrace" class="tabcontent">
-        <div style="width: 50%; float: left">
-          <p>Test and Trace: Test Symptomatic Rate (0-1)</p>
-          <input class="testAndTraceRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
-          <p>Test and Trace: Recursive Rate (0-1)</p>
-          <input class="testAndTraceInceptionRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
-          <p>Test and Trace: Test Number of Contacts (0-25)</p>
-          <input class="testAndTraceNumContacts" onchange="update()" type="number" value="10" step="1" min="0" max="25">
-          <p>Test and Trace: Quarantine Mode: 0=At Home, 1=In Hospital </p>
-          <input class="testAndTraceQuarantineMode" onchange="update()" type="number" value="0" step="1" min="0" max="1">
-        </div>
-        <div style="width: 50%; float: right"></div>
-      </div>
-      
-    <!--</div>-->
-  </div>
-  </div>
-      <button onclick="pause()"> Play/Pause</button>
+        <button onclick="pause()"> Play/Pause</button>
 
-      <button onclick="reset()"> Reset</button>
+        <button onclick="reset()"> Reset</button>
 
-  <div class="ct-chart ct-golden-section chart" id="chart1"></div>
-  <div style="float: left; display: flex; left; padding-left: 5px;">
-    <div style="vertical-align: text-top;">
-      <span class="blueLine"></span> &nbsp; Healthy &emsp;
-      <span class="orangeLine"></span> &nbsp; Sick &emsp;
-      <span class="greenLine"></span>&nbsp; Recovered &emsp;
-      <span class="blackLine"></span>&nbsp; Dead &emsp;
+        <div class="ct-chart ct-golden-section chart" id="chart1"></div>
+        <div style="float: left; display: flex; left; padding-left: 5px;">
+          <div style="vertical-align: text-top;">
+            <span class="blueLine"></span> &nbsp; Healthy &emsp;
+            <span class="orangeLine"></span> &nbsp; Sick &emsp;
+            <span class="greenLine"></span>&nbsp; Recovered &emsp;
+            <span class="blackLine"></span>&nbsp; Dead &emsp;
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  </div>
-</div>
   </div>
   <script type="text/javascript">
     //Tabs 
