@@ -42,6 +42,7 @@
   padding: 6px 12px;
   border: 1px solid #ccc;
   border-top: none;
+  overflow: hidden;
 }
 
   body {
@@ -214,6 +215,10 @@
   visibility: visible;
 }
 
+  .infoPanel{
+    display: none;
+  }
+
 
   </style>
 </head>
@@ -222,6 +227,7 @@
     <div id="title"><p id="balls" style="font-size: 15pt">Covid19 Simulator</p><br/></div>
     <p>Click through the tabs to the right and feel free to change the variables to see how the spread of diseases (like COVID-19) change based on several factors. See how the graph of disease spread changes over time based on your input!<br/>
     Hover over variable names with dotted underlines to see a description of the variable </p>
+    <br/>
     <i>Note: This simulator is intended for interactive learning only and is not a true simulation of the real world. This tool should not be used to influence opinion or personal actions regarding the COVID-19 outbreak and should be seen as a fun and interactive tool only.</i>
     <div><p id="balls" style="font-size: 12pt">Click on sim to run/pause</p><br/></div>
   </section>
@@ -251,67 +257,86 @@
       <button class="tablinks" onclick="openCity(event, 'Advanced')">Advanced</button>
     </div>
     <!--<div class="controls">-->
-    <div style="align-content: left">
+    <div>
       <div id="Basic" class="tabcontent">
-        <!--<div style="float: left">-->
-          <div class="tooltip">
-            <p class="tooltipUnderline">Social Distancing Compliance (0-1) (D)</p>
-            <p class="tooltiptext">
+        <div style="width: 50%; float: left">
+          <i>The variables with (D) next to them will update the simulation immediately. All others require the reset button to be clicked</i>
+          <br/>
+          <div>
+            <p class="tooltipUnderline" onmouseover="showText('basic1info', 'basicPanel')">Social Distancing Compliance (0-1) (D)</p>
+            <p class="tooltiptext" id="basic1info" style="display: none;">
               Social distancing is defined by the CDC as staying at least 6 feet from other people, and avoiding gatherings.  This is an effective strategy to minimize the spread of COVID-19 because the spread of COVID-19 occurs when pathogens are transmitted by respiratory droplets.  Respiratory droplets can spread as far as 6 feet from their source, so when individuals are in close contact with one another, they risk spreading the disease through talking, coughing, or sneezing in particular. 
             </p>
             <input class="socialDistanceCompliance" onchange="update()" type="number" value="0.2" step="0.01" min="0" max="1">
           </div>      
-          <p>Infection Rate (0-1) (D)</p>
+          <p onmouseover="showText('basic2info', 'basicPanel')">Infection Rate (0-1) (D)</p>
+          <p id="basic2info" style="display: none;">How rapidly the infection spreads?</p>
           <input class="infectionRate" onchange="update()" type="number" value="0.7" step="0.01" min="0" max="1">
           <p>Morbidity Rate (0-1) (D) </p>
           <input class="morbidityRate" onchange="update()" type="number" value="0.03" step="0.001" min="0" max="1">
-        <!--</div>-->
-        <!--<div style="float: right">ht</div>-->
+        </div>
+        <div style="width: 50%; float: right" class="hoverShow"><p id="basicPanel"></p></div>
       </div>
-      <div id="Advanced" class="tabcontent">
-        <p>Symptomatic Rate (0-1)</p>
-        <input class="symptomaticRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
-        <p>Symptom Start Time (1+) </p>
-        <input class="symptomStartTime" onchange="update()" type="number" value="50" step="1" min="1" max="1000">
-        <p>Recover Time (1+) </p>
-        <input class="recoverTime" onchange="update()" type="number" value="100" step="1" min="1" max="1000">
-        <p>Number of People (1+)</p>
-        <input class="numStartingBalls" onchange="update()" type="number" value="400" step="1" min="1" max="1000">
-        <p>Initial Num Sick People (1+)</p>
-        <input class="startingSickBalls" onchange="update()" type="number" value="2" step="1" min="1" max="1000">
-        <p>Speed (0+)</p>
-        <input class="ballSpeed" onchange="update()" type="number" value="12" step="1" min="1" max="30">
+      <div id="Advanced" class="tabcontent" >
+        <div style="width: 50%; float: left">
+          <p>Symptomatic Rate (0-1)</p>
+          <input class="symptomaticRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
+          <p>Symptom Start Time (1+) </p>
+          <input class="symptomStartTime" onchange="update()" type="number" value="50" step="1" min="1" max="1000">
+          <p>Recover Time (1+) </p>
+          <input class="recoverTime" onchange="update()" type="number" value="100" step="1" min="1" max="1000">
+          <p>Number of People (1+)</p>
+          <input class="numStartingBalls" onchange="update()" type="number" value="400" step="1" min="1" max="1000">
+          <p>Initial Num Sick People (1+)</p>
+          <input class="startingSickBalls" onchange="update()" type="number" value="2" step="1" min="1" max="1000">
+          <p>Speed (0+)</p>
+          <input class="ballSpeed" onchange="update()" type="number" value="12" step="1" min="1" max="30">
+        </div>
+        <div style="width: 50%; float: right">
+        </div>
       </div>
       <div id="Communities" class="tabcontent">
-        <p>Communities: Number (1+) </p>
-        <input class="numCommunities" onchange="update()" type="number" value="1" step="1" min="1" max="100">
-        <p>Communities: Switch Rate (D) </p>
-        <input class="switchCommunityRate" onchange="update()" type="number" value="0.005" step="0.001" min="0" max="1">
+        <div style="width: 50%; float: left">
+          <p>Communities: Number (1+) </p>
+          <input class="numCommunities" onchange="update()" type="number" value="1" step="1" min="1" max="100">
+          <p>Communities: Switch Rate (D) </p>
+          <input class="switchCommunityRate" onchange="update()" type="number" value="0.005" step="0.001" min="0" max="1">
+        </div>
+        <div style="width: 50%; float: right">
+        </div>
       </div>
-      <div id="Market" class="tabcontent">
-
-        <p>Market: Exists (0/1) </p>
-        <input class="hasMarketBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
-        <p>Market: Shopping Rate (0-1) (D) </p>
-        <input class="marketFrequency" onchange="update()" type="number" value="0.001" step="0.001" min="0" max="1">
-        <p>Market: Shopping Time (1+) (D) </p>
-        <input class="marketDuration" onchange="update()" type="number" value="20" step="1" min="1" max="1000">
-      </div>
+        <div id="Market" class="tabcontent">
+          <div style="width: 50%; float: left">
+            <p>Market: Exists (0/1) </p>
+            <input class="hasMarketBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
+            <p>Market: Shopping Rate (0-1) (D) </p>
+            <input class="marketFrequency" onchange="update()" type="number" value="0.001" step="0.001" min="0" max="1">
+            <p>Market: Shopping Time (1+) (D) </p>
+            <input class="marketDuration" onchange="update()" type="number" value="20" step="1" min="1" max="1000">
+          </div>
+          <div style="width: 50%; float: left"></div>
+        </div>
       <div id="Hospital" class="tabcontent">
-        <p>Hospital: Exists (0/1)</p>
-        <input class="hasHospitalBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
-        <p>Hospital: Admission Rate (0-1)</p>
-        <input class="hospitalizationRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
+        <div style="width: 50%; float: left">
+          <p>Hospital: Exists (0/1)</p>
+          <input class="hasHospitalBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
+          <p>Hospital: Admission Rate (0-1)</p>
+          <input class="hospitalizationRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
+        </div>
+        <div style="width: 50%; float: right"></div>
       </div>
       <div id="TestTrace" class="tabcontent">
-        <p>Test and Trace: Test Symptomatic Rate (0-1)</p>
-        <input class="testAndTraceRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
-        <p>Test and Trace: Recursive Rate (0-1)</p>
-        <input class="testAndTraceInceptionRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
-        <p>Test and Trace: Test Number of Contacts (0-25)</p>
-        <input class="testAndTraceNumContacts" onchange="update()" type="number" value="10" step="1" min="0" max="25">
-        <p>Test and Trace: Quarantine Mode: 0=At Home, 1=In Hospital </p>
-        <input class="testAndTraceQuarantineMode" onchange="update()" type="number" value="0" step="1" min="0" max="1">
+        <div style="width: 50%; float: left">
+          <p>Test and Trace: Test Symptomatic Rate (0-1)</p>
+          <input class="testAndTraceRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
+          <p>Test and Trace: Recursive Rate (0-1)</p>
+          <input class="testAndTraceInceptionRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
+          <p>Test and Trace: Test Number of Contacts (0-25)</p>
+          <input class="testAndTraceNumContacts" onchange="update()" type="number" value="10" step="1" min="0" max="25">
+          <p>Test and Trace: Quarantine Mode: 0=At Home, 1=In Hospital </p>
+          <input class="testAndTraceQuarantineMode" onchange="update()" type="number" value="0" step="1" min="0" max="1">
+        </div>
+        <div style="width: 50%; float: right"></div>
       </div>
       
     <!--</div>-->
@@ -337,6 +362,12 @@
     //Tabs 
     document.getElementById("Basic").style.display = "block";
     document.getElementById("basicTab").className += " active";
+    function showText(info, display){
+      text = document.getElementById(info).innerHTML;
+      panel = document.getElementById(display);
+      panel.innerHTML = text;
+      console.log("Hover");
+    }
     function openCity(evt, tabName) {
       // Declare all variables
       var i, tabcontent, tablinks;
