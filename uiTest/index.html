@@ -5,6 +5,10 @@
   <title>Covid19 Simulator</title>
   <link rel="stylesheet" href="../bower_components/chartist/dist/chartist.min.css">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <script src="https://code.jquery.com/jquery-3.2.1.js" integrity="sha256-DZAnKJ/6XZ9si04Hgrsxu/8s717jcIzLy3oi35EouyE=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
   <style>
     /* Style the tab */
@@ -12,6 +16,8 @@
   overflow: hidden;
   border: 1px solid #ccc;
   background-color: #f1f1f1;
+  display: flex;
+  justify-content: space-around;
 }
 
 /* Style the buttons that are used to open the tab content */
@@ -23,6 +29,11 @@
   cursor: pointer;
   padding: 10px 8px;
   transition: 0.3s;
+}
+
+.tablinks {
+  display: flex;
+  justify-content: center;
 }
 
 /* Change background color of buttons on hover */
@@ -38,11 +49,13 @@
 /* Style the tab content */
 .tabcontent {
 
-  display: none;
+  display: flex;
+  justify-content: center;
   padding: 6px 12px;
   border: 1px solid #ccc;
   border-top: none;
   overflow: hidden;
+
 }
 
   body {
@@ -219,6 +232,20 @@
     display: none;
   }
 
+.basic1info{
+  position: fixed; /* Stay in place */
+  z-index: 1;
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+
 
   </style>
 </head>
@@ -261,10 +288,13 @@
             <div style="width: 50%; float: left">
               <br/>
               <div>
-                <p class="tooltipUnderline" onmouseover="showText('basic1info', 'basicPanel')">Social Distancing Compliance (0-1) </p>
-                <p class="tooltiptext" id="basic1info" style="display: none;">
-                  Social distancing is defined by the CDC as staying at least 6 feet from other people, and avoiding gatherings.  This is an effective strategy to minimize the spread of COVID-19 because the spread of COVID-19 occurs when pathogens are transmitted by respiratory droplets.  Respiratory droplets can spread as far as 6 feet from their source, so when individuals are in close contact with one another, they risk spreading the disease through talking, coughing, or sneezing in particular. 
-                </p>
+                <p id="myBtn" onclick="showText('basic1info', 'basicPanel')">Social Distancing Compliance (0-1) </p>
+                <div id="basic1info" class="modal">
+                  <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <p>Social distancing is defined by the CDC as staying at least 6 feet from other people, and avoiding gatherings.  This is an effective strategy to minimize the spread of COVID-19 because the spread of COVID-19 occurs when pathogens are transmitted by respiratory droplets.  Respiratory droplets can spread as far as 6 feet from their source, so when individuals are in close contact with one another, they risk spreading the disease through talking, coughing, or sneezing in particular. </p>
+                  </div>
+                </div>
                 <input class="socialDistanceCompliance" onchange="update()" type="number" value="0.2" step="0.01" min="0" max="1">
               </div>      
               <p onmouseover="showText('basic2info', 'basicPanel')">Infection Rate (0-1) </p>
@@ -359,10 +389,30 @@
     document.getElementById("Basic").style.display = "block";
     document.getElementById("basicTab").className += " active";
     function showText(info, display){
-      text = document.getElementById(info).innerHTML;
-      panel = document.getElementById(display);
-      panel.innerHTML = text;
-      console.log("Hover");
+      var modal = document.getElementById('basic1info')
+      var btn = document.getElementById("myBtn");
+      var span = document.getElementsByClassName("close")[0];
+
+      btn.onclick = function() {
+        modal.style.display = "block";
+      }
+
+      // When the user clicks on <span> (x), close the modal
+      span.onclick = function() {
+        modal.style.display = "none";
+      }
+
+      // When the user clicks anywhere outside of the modal, close it
+      window.onclick = function(event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      }
+
+      // text = document.getElementById(info).innerHTML;
+      // panel = document.getElementById(display);
+      // panel.innerHTML = text;
+      // console.log("Hover");
     }
     function openCity(evt, tabName) {
       // Declare all variables
