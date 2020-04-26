@@ -6,38 +6,37 @@ class Ball {
     constructor(x, y, id, ballSpeed, box){
         this.ballSpeed = ballSpeed;
         this.radius = BALLRADIUS;
+        this.mass = this.radius * this.radius * this.radius;
         this.x = x;
         this.y = y;
-
+        this.box = box;
         this.id = id;//ball id is index in ballArray
     
+        //velocity
         let angle = Math.random() * 2 * Math.PI; 
         this.dx = this.ballSpeed * Math.cos(angle);
         this.dy = this.ballSpeed * Math.sin(angle);  
-
-        this.infectionStart = 0;
-        this.symptomsStart = 0;
-        this.infectionEnd = 0;
         
+        //random probabilities for use with rates
         this.socialDistancingWillingness = Math.random();
-        this.socialDistancing = false;
-        this.showsSymptoms = Math.random();
+        this.diseaseSeverity = Math.random();//used for isSymptomatic, hospitalization, and morbidity
         this.wouldBeTestAndTraced = Math.random();
 
-        // mass is that of a sphere as opposed to circle
-        // it *does* make a difference in how realistic it looks
-        this.mass = this.radius * this.radius * this.radius;
-
         this.status = 0; //0=helathy, 1=sick+symptomatic, 2=sick+unsymptomatic, 3=recovered, 4=dead
-        this.testedSick = false;
-        this.willHospitalize = false;
-        this.willTestAndTrace = false;
-        this.homeQuarantine = false;
-        this.maxCollisionMemory = 25
-        this.collisionIndex = 0
-        this.collisionHistory = [];
+        this.symptomsStart = 0;//time to transition from status=2 => status=1, 0 if no transition
+        this.infectionEnd = 0;//time to transition from status=1/2 => status=3/4
+        this.socialDistancing = false; //am I social distancing right now
+        this.testedSick = false; //used to prevent infinite recursion in testAndTrace, also used to determine socialDistancing
+        this.willHospitalize = false;//set equal to true to send this ball to hospital at earliest convienience(immeadiately or after ghost mode)
+        this.willTestAndTrace = false;//test and trace at next turn
+        this.homeQuarantine = false;//apply social distancing from testAndTrace
+        this.maxCollisionMemory = 25;//sets limit on how many contacts are saved to test and trace from
+        this.collisionIndex = 0;//loops from 0 to maxCOllisionMemory
+        this.collisionHistory = [];//contains up to maxCollisionMemory records of collisions for test and trace
 
-        this.box = box;
+        //ghostMode is when ball flies between boxes
+        //ghostMode pauses disease and collisions
+        //ball may set ghostReturn values in order to return to their original box after a period of time in another box
         this.ghostMode = false;
         this.ghostTurns = 0;
         this.ghostFuture = false;
@@ -147,15 +146,14 @@ class Ball {
 
     getSick(time, recoverTime, symptomaticRate, symptomStartTime)
     {
-        this.infectionStart = time;
-        let developsSymptoms = this.showsSymptoms < symptomaticRate;
+        let developsSymptoms = this.diseaseSeverity < symptomaticRate;
         this.symptomsStart = developsSymptoms ? (time + symptomStartTime) : time + recoverTime*10 + 10000;
         this.infectionEnd = time + recoverTime;
         this.status = 2;
     }
 
     randomTest(rate, inceptionRate, numContacts, quarantineMode, hospitalBox=null){
-        if(this.willTestAndTrace < rate && this.status == 1)
+        if(this.willTestAndTrace)
         {
             this.willTestAndTrace = false;
             let trace_set = new Set()
@@ -198,7 +196,7 @@ class Ball {
         if(this.isSick() && (time >= this.symptomsStart))
         {
             this.status = 1;
-            if(this.showsSymptoms < hospitalizationRate ){
+            if(this.diseaseSeverity < hospitalizationRate ){
                 this.willHospitalize = true;
             }
             if(this.wouldBeTestAndTraced < testAndTraceRate){
@@ -206,7 +204,7 @@ class Ball {
             }
         }
         if(this.isSick() && (time >= this.infectionEnd)){
-            if(this.showsSymptoms < morbidityRate)
+            if(this.diseaseSeverity < morbidityRate)
             {
                 this.dx = 0;
                 this.dy = 0;
