@@ -238,28 +238,32 @@
     
     <!--<div class="ct-chart ct-golden-section chart" id="chart1"></div>-->
 
-    <div class= "sim flex-container2" id="sim1"style="overflow: auto;">
-      <div>
-        <span class="blueDot"></span>&nbsp; Uninfected &emsp;
-        <span class="yellowDot"></span>&nbsp; Infected: No Symptoms &emsp;
-        <span class="redDot"></span>&nbsp; Infected: Symptoms &emsp;
-        <span class="greenDot"></span>&nbsp; Recovered &emsp;
-        <span class="blackDot"></span>&nbsp; Dead &emsp;
-        <canvas onclick="pause()" class="canvas" id="canvas1" width="650px" height="600px" style="border:1px solid black;"></canvas>
+    <div class= "sim flex-container2" id="sim1"style="overflow: auto; position: absolute;">
+      <div class="leftSide" style="position: relative;">
+        <div class="dots">
+          <span class="blueDot"></span>&nbsp; Uninfected &emsp;
+          <span class="yellowDot"></span>&nbsp; Infected: No Symptoms &emsp;
+          <span class="redDot"></span>&nbsp; Infected: Symptoms &emsp;
+          <span class="greenDot"></span>&nbsp; Recovered &emsp;
+          <span class="blackDot"></span>&nbsp; Dead &emsp;
+        </div>
+        <div>
+          <canvas onclick="pause()" class="canvas" id="canvas1" width="650px" height="600px" style="border:1px solid black;"></canvas>
+        </div>
       </div>
-      <div class="rightColumn">
+      <div class="rightColumn" style="position: relative;">
         <div class="tabpanel">
-        <div class="tab">
+          <div class="tab">
           <button class="tablinks" onClick="openCity(event, 'Basic')" id="basicTab">Basic</button>
           <button class="tablinks" onclick="openCity(event, 'Market')">Market</button>
           <button class="tablinks" onclick="openCity(event, 'Hospital')">Hospital</button>
           <button class="tablinks" onclick="openCity(event, 'TestTrace')">Test and Trace</button>
           <button class="tablinks" onclick="openCity(event, 'Communities')">Communities</button>
           <button class="tablinks" onclick="openCity(event, 'Advanced')">Advanced</button>
-        </div>
-        <div>
-          <div id="Basic" class="tabcontent">
-            <div style="width: 50%;max-width: 50%; float: left">
+          </div>
+          <div>
+            <div id="Basic" class="tabcontent">
+              <div style="width: 50%; float: left">
               <br/>
               <div>
                 <p class="tooltipUnderline" onmouseover="showText('basic1info', 'basicPanel')">Social Distancing Compliance (0-1) </p>
@@ -277,10 +281,10 @@
               <input class="testAndTraceRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
               <p>Symptomatic Rate (0-1)</p>
               <input class="symptomaticRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
+              </div>
+              <div style="width: 50%; float: right; overflow: auto;" class="hoverShow"><p id="basicPanel" style="position: absolute;"></p></div>
             </div>
-            <div style="width: 50%; float: right" class="hoverShow"><p id="basicPanel"></p><p></p></div>
-          </div>
-          <div id="Advanced" class="tabcontent" >
+            <div id="Advanced" class="tabcontent" >
             <div style="width: 50%; float: left">
               <p>Symptom Start Time (1+) </p>
               <input class="symptomStartTime" onchange="update()" type="number" value="50" step="1" min="1" max="1000">
@@ -295,8 +299,8 @@
             </div>
             <div style="width: 50%; float: right">
             </div>
-          </div>
-          <div id="Communities" class="tabcontent">
+            </div>
+            <div id="Communities" class="tabcontent">
             <div style="width: 50%; float: left">
               <p>Communities: Number (1+) </p>
               <input class="numCommunities" onchange="update()" type="number" value="1" step="1" min="1" max="100">
@@ -305,8 +309,8 @@
             </div>
             <div style="width: 50%; float: right">
             </div>
-          </div>
-          <div id="Market" class="tabcontent">
+            </div>
+            <div id="Market" class="tabcontent">
             <div style="width: 50%; float: left">
               <p>Market: Exists (0/1) </p>
               <input class="hasMarketBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
@@ -316,8 +320,8 @@
               <input class="marketDuration" onchange="update()" type="number" value="20" step="1" min="1" max="1000">
             </div>
             <div style="width: 50%; float: left"></div>
-          </div>
-          <div id="Hospital" class="tabcontent">
+            </div>
+            <div id="Hospital" class="tabcontent">
             <div style="width: 50%; float: left">
               <p>Hospital: Exists (0/1)</p>
               <input class="hasHospitalBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
@@ -325,8 +329,8 @@
               <input class="hospitalizationRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
             </div>
             <div style="width: 50%; float: right"></div>
-          </div>
-          <div id="TestTrace" class="tabcontent">
+            </div>
+            <div id="TestTrace" class="tabcontent">
             <div style="width: 50%; float: left">
               <p>Test and Trace: Recursive Rate (0-1)</p>
               <input class="testAndTraceInceptionRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
@@ -335,9 +339,9 @@
               <p>Test and Trace: Quarantine Mode: 0=At Home, 1=In Hospital </p>
               <input class="testAndTraceQuarantineMode" onchange="update()" type="number" value="0" step="1" min="0" max="1">
             </div>
-          <div style="width: 50%; float: right"></div>
+          <!--<div style="width: 50%; float: right"></div>-->
           </div>
-        </div>
+          </div>
         </div>
         <button onclick="pause()"> Play/Pause</button>
 
