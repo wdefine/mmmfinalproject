@@ -46,6 +46,8 @@
   border-top: none;
   height: 550px;
   overflow: hidden;
+  width: 700px;
+  max-width: 700px;
 }
 
   body {
@@ -242,6 +244,9 @@
   .rightColumn{
     padding-left: 5px;
   }
+  .graphEle{
+    bottom: 0;
+  }
 
 
   </style>
@@ -259,13 +264,12 @@
 
   <!--This div outlines a simulation object. You can place as many of these in html as you like.
       Each sim must have a unique id, and each chart and canvas element must have a unique id.-->
-  <div class="flex-container" id="sim1">
+  <div class="sim flex-container" id="sim1">
     
     <!--<div class="ct-chart ct-golden-section chart" id="chart1"></div>-->
 
-    <div class= "sim flex-container2" id="sim1"style="overflow: auto; position: absolute;">
-      <div class="leftSide" style="position: relative;">
-        
+    <div class= "flex-container2" style="overflow: auto; position: absolute;">
+      <div class="leftSide" style="position: relative;">       
         <div>
           <canvas onclick="pause()" class="canvas" id="canvas1" width="650px" height="592px" style="border:1px solid black;"></canvas>
         </div>
@@ -276,6 +280,15 @@
           <span class="greenDot"></span>&nbsp; Recovered &emsp;
           <span class="blackDot"></span>&nbsp; Dead &emsp;
         </div>
+        <div class="ct-chart ct-golden-section chart" id="chart1" display></div>
+          <div style="float: left; display: flex; left; padding-left: 5px;">
+            <div style="vertical-align: text-top;">
+              <span class="blueLine"></span> &nbsp; Healthy &emsp;
+              <span class="orangeLine"></span> &nbsp; Sick &emsp;
+              <span class="greenLine"></span>&nbsp; Recovered &emsp;
+              <span class="blackLine"></span>&nbsp; Dead &emsp;
+            </div>
+          </div>
       </div>
       <div class="rightColumn" style="position: relative;">
         <div class="tabpanel">
@@ -389,24 +402,11 @@
         </div>
         <button class="btn" onclick="pause()"> Play/Pause</button>
 
-        <button onclick="reset()"> Reset</button>
-
-
-        
-       
+        <button onclick="reset()"> Reset</button>       
       </div>
-      <div class="ct-chart ct-golden-section chart" id="chart1" display></div>
-     <div style="float: left; display: flex; left; padding-left: 5px;">
-          <div style="vertical-align: text-top;">
-            <span class="blueLine"></span> &nbsp; Healthy &emsp;
-            <span class="orangeLine"></span> &nbsp; Sick &emsp;
-            <span class="greenLine"></span>&nbsp; Recovered &emsp;
-            <span class="blackLine"></span>&nbsp; Dead &emsp;
-          </div>
-        </div>
     </div>
-    
   </div>
+
   <script type="text/javascript">
     //Tabs 
     document.getElementById("Basic").style.display = "block";
