@@ -95,14 +95,13 @@
   }
 
   .flex-container {
-    /*display: flex;
-    /*
-    flex-direction: row;
-    */
+    padding-left: 10px;
+    padding-right: 10px;
   }
   .flex-container2{
     display: flex;
     flex-direction: row;
+    justify-content: center;
   }
 
   .ct-series-a .ct-line,
@@ -234,17 +233,24 @@
     position: absolute;
     text-align: left;
 }
+  .leftSide{
+    padding-right: 5px;
+  }
+  .rightColumn{
+    padding-left: 5px;
+  }
 
 
   </style>
 </head>
 <body style="text-align: center">
-  <section>
+  <section style="padding-left: 15px; padding-right: 15px;">
     <div id="title"><p id="balls" style="font-size: 15pt">Covid19 Simulator</p><br/></div>
     <p>Click through the tabs to the right and feel free to change the variables to see how the spread of diseases (like COVID-19) change based on several factors. See how the graph of disease spread changes over time based on your input!<br/>
     Hover over variable names with dotted underlines to see a description of the variable in the context of COVID-19</p>
     <br/>
     <i>Note: This simulator is intended for interactive learning only and is not a true simulation of the real world. This tool should not be used to influence opinion or personal actions regarding the COVID-19 outbreak and should be seen as a fun and interactive tool only.</i>
+    <p>Make sure to click <b>Reset</b> when you've changed a variable to see the changes in the simulation</p>
     <div><p id="balls" style="font-size: 12pt">Click on sim to run/pause</p><br/></div>
   </section>
 
@@ -296,8 +302,8 @@
                   </p>
                 </div>
                 <input class="infectionRate" onchange="update()" type="number" value="0.7" step="0.01" min="0" max="1">
-                <p class="underline "onmouseover="showText('basic3info', 'basicPanel')">Mortality Rate (0-1) </p>
-                <p id="basic3info" style="display: none;font-size: 8">According to NPR, the case fatality rate would tell us exactly how deadly a virus is in a perfect world. The case fatality rate for COVID-19 is calculated by dividing the number of deaths attributed to COVID-19 by the number of COVID-19 infections.  However, given that COVID-19 is relatively new, the case fatality rate is not inaccurate, and the reported rates are likely too high.  This is because COVID-19 is not easy to identify or diagnose, and only those that are very sick are being identified as COVID-19 positive for the most part. This makes the calculated number of infections lower than it actually is, and in turn is  inflating the death rate.  The inability to calculate an accurate case fatality rate is contributing to the apparent disparity between death rates between countries.  Countries that have conducted widespread testing are reporting higher case fatality rates than countries that are only testing the very sick.  There are other factors that affect the case fatality rate, such as the age of a population and the strength of health systems.
+                <p class="underline "onmouseover="showText('basic3info', 'basicPanel')">Fatality Rate (0-1) </p>
+                <p id="basic3info" style="display: none;font-size: 8">Fatality rate is the proportion of infected people that ultimately die from a disease. Given that COVID-19 is relatively new, the case fatality rate is not accurate, and the reported rates are likely too high. This is because COVID-19 is not easy to identify or diagnose, and only those that are very sick are being identified as COVID-19 positive for the most part. This makes the calculated number of infections lower than it actually is, and in turn is  inflating the death rate. There are other factors that affect the case fatality rate, such as the age of a population and the strength of health systems.
                 <a href="https://www.npr.org/sections/goatsandsoda/2020/03/27/821958435/why-death-rates-from-coronavirus-can-be-deceiving">NPR Article</a><br/>
                 <a href="https://www.bbc.com/future/article/20200401-coronavirus-why-death-and-mortality-rates-differ">BBC Article</a>
                 </p>
@@ -322,11 +328,11 @@
                 <input class="symptomStartTime" onchange="update()" type="number" value="50" step="1" min="1" max="1000">
                 <p>Recover Time (1+) </p>
                 <input class="recoverTime" onchange="update()" type="number" value="100" step="1" min="1" max="1000">
-                <p>Number of People (1+)</p>
+                <p>Number of People (1+) *</p>
                 <input class="numStartingBalls" onchange="update()" type="number" value="400" step="1" min="1" max="1000">
-                <p>Initial Num Sick People (1+)</p>
+                <p>Initial Num Sick People (1+) *</p>
                 <input class="startingSickBalls" onchange="update()" type="number" value="2" step="1" min="1" max="1000">
-                <p>Speed (0+)</p>
+                <p>Speed (0+) *</p>
                <input class="ballSpeed" onchange="update()" type="number" value="12" step="1" min="1" max="30">
               </div>
               <div class="infoColumn"><p id="advancedPanel" class="infoP"></p>
@@ -334,7 +340,7 @@
             </div>
             <div id="Communities" class="tabcontent">
               <div style="width: 50%; float: left">
-              <p>Communities: Number (1+) </p>
+              <p>Communities: Number (1+) *</p>
               <input class="numCommunities" onchange="update()" type="number" value="1" step="1" min="1" max="100">
               <p>Communities: Switch Rate </p>
               <input class="switchCommunityRate" onchange="update()" type="number" value="0.005" step="0.001" min="0" max="1">
@@ -345,7 +351,7 @@
             <div id="Market" class="tabcontent">
               <div style="width: 50%; float: left">
                 <p style="color: green">By changing <em>Market: Exists</em> to 1, a green box will appear representing a supermarket where balls go to shop. The rate at which they go to the store and how long they spend can be controlled below. <br/> Click Reset to make the changes show up</p>
-              <p>Market: Exists (0/1) </p>
+              <p>Market: Exists (0/1) *</p>
               <input class="hasMarketBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
               <p>Market: Shopping Rate (0-1) </p>
               <input class="marketFrequency" onchange="update()" type="number" value="0.001" step="0.001" min="0" max="1">
@@ -357,7 +363,7 @@
             <div id="Hospital" class="tabcontent">
               <div style="width: 50%; float: left">
                 <p style="color: green">By changing Hospital: Exists to 1, a red box representing a hospital will appear in the simulation. Infected balls will be admitted to the hospital at a rate equal to the Admission Rate</p>
-                <p>Hospital: Exists (0/1)</p>
+                <p>Hospital: Exists (0/1) *</p>
                 <input class="hasHospitalBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
                 <p>Hospital: Admission Rate (0-1)</p>
                 <input class="hospitalizationRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
