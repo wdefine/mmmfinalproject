@@ -12,6 +12,8 @@
   overflow: hidden;
   border: 1px solid #ccc;
   background-color: #f1f1f1;
+  display: flex;
+  justify-content: space-around;
 }
 
 /* Style the buttons that are used to open the tab content */
@@ -191,8 +193,12 @@
   position: relative;
   display: inline-block;
 }
-.tooltipUnderline{
+.underline{
+  /*
   border-bottom: 1px dotted black;
+*/
+  text-decoration: underline;
+  text-decoration-style: dotted;
 }
 /* Tooltip text */
 .tooltip .tooltiptext {
@@ -219,6 +225,16 @@
     display: none;
   }
 
+  .infoColumn{
+    width: 50%; 
+    float: right; 
+    overflow: auto;
+  }
+  .infoP{
+    position: absolute;
+    text-align: left;
+}
+
 
   </style>
 </head>
@@ -226,7 +242,7 @@
   <section>
     <div id="title"><p id="balls" style="font-size: 15pt">Covid19 Simulator</p><br/></div>
     <p>Click through the tabs to the right and feel free to change the variables to see how the spread of diseases (like COVID-19) change based on several factors. See how the graph of disease spread changes over time based on your input!<br/>
-    Hover over variable names with dotted underlines to see a description of the variable </p>
+    Hover over variable names with dotted underlines to see a description of the variable in the context of COVID-19</p>
     <br/>
     <i>Note: This simulator is intended for interactive learning only and is not a true simulation of the real world. This tool should not be used to influence opinion or personal actions regarding the COVID-19 outbreak and should be seen as a fun and interactive tool only.</i>
     <div><p id="balls" style="font-size: 12pt">Click on sim to run/pause</p><br/></div>
@@ -264,86 +280,104 @@
           <div>
             <div id="Basic" class="tabcontent">
               <div style="width: 50%; float: left">
-              <br/>
-              <div>
-                <p class="tooltipUnderline" onmouseover="showText('basic1info', 'basicPanel')">Social Distancing Compliance (0-1) </p>
-                <p class="tooltiptext" id="basic1info" style="display: none;">
-                  Social distancing is defined by the CDC as staying at least 6 feet from other people, and avoiding gatherings.  This is an effective strategy to minimize the spread of COVID-19 because the spread of COVID-19 occurs when pathogens are transmitted by respiratory droplets.  Respiratory droplets can spread as far as 6 feet from their source, so when individuals are in close contact with one another, they risk spreading the disease through talking, coughing, or sneezing in particular. 
+                <div>
+                  <p class="underline" onmouseover="showText('basic1info', 'basicPanel')">Social Distancing Compliance (0-1) </p>
+                  <p class="tooltiptext" id="basic1info" style="display: none;">
+                  Social distancing is defined by the CDC as staying at least 6 feet from other people, and avoiding gatherings.  This is an effective strategy to minimize the spread of COVID-19 because the spread of COVID-19 occurs when pathogens are transmitted by respiratory droplets.  Respiratory droplets can spread as far as 6 feet from their source, so when individuals are in close contact with one another, they risk spreading the disease through talking, coughing, or sneezing in particular. <br/><a href="https://www.cdc.gov/coronavirus/2019-ncov/prevent-getting-sick/social-distancing.html">CDC.gov</a>
+                  </p>
+                  <input class="socialDistanceCompliance" onchange="update()" type="number" value="0.2" step="0.01" min="0" max="1">
+                </div>
+                <div>      
+                  <p class="underline "onmouseover="showText('basic2info', 'basicPanel')">Infection Rate (0-1) </p>
+                  <p id="basic2info" style="display: none;"><em>Infection Rate</em> is the probability that an infection will be transmitted in a population. Given that it is unclear how many people have contracted COVID-19, it is also unclear what the infection rate of COVID-19 truly is.  The New York Times estimates that for every confirmed case of COVID-19, there are likely between five and ten undetected infections.  U.S. News reported that after screening 3,000 people in New York, 13.9% of them tested positive.
+                  <br/>
+                  <a href="https://www.nytimes.com/2020/03/16/health/coronavirus-statistics-undetected.html">New York Times Article</a></br>
+                  <a href="https://www.usnews.com/news/national-news/articles/2020-04-23/new-york-coronavirus-antibody-tests-show-infection-rate-of-nearly-14">US News article</a>
+                  </p>
+                </div>
+                <input class="infectionRate" onchange="update()" type="number" value="0.7" step="0.01" min="0" max="1">
+                <p class="underline "onmouseover="showText('basic3info', 'basicPanel')">Mortality Rate (0-1) </p>
+                <p id="basic3info" style="display: none;font-size: 8">According to NPR, the case fatality rate would tell us exactly how deadly a virus is in a perfect world. The case fatality rate for COVID-19 is calculated by dividing the number of deaths attributed to COVID-19 by the number of COVID-19 infections.  However, given that COVID-19 is relatively new, the case fatality rate is not inaccurate, and the reported rates are likely too high.  This is because COVID-19 is not easy to identify or diagnose, and only those that are very sick are being identified as COVID-19 positive for the most part. This makes the calculated number of infections lower than it actually is, and in turn is  inflating the death rate.  The inability to calculate an accurate case fatality rate is contributing to the apparent disparity between death rates between countries.  Countries that have conducted widespread testing are reporting higher case fatality rates than countries that are only testing the very sick.  There are other factors that affect the case fatality rate, such as the age of a population and the strength of health systems.
+                <a href="https://www.npr.org/sections/goatsandsoda/2020/03/27/821958435/why-death-rates-from-coronavirus-can-be-deceiving">NPR Article</a><br/>
+                <a href="https://www.bbc.com/future/article/20200401-coronavirus-why-death-and-mortality-rates-differ">BBC Article</a>
                 </p>
-                <input class="socialDistanceCompliance" onchange="update()" type="number" value="0.2" step="0.01" min="0" max="1">
-              </div>      
-              <p onmouseover="showText('basic2info', 'basicPanel')">Infection Rate (0-1) </p>
-              <p id="basic2info" style="display: none;">How rapidly the infection spreads?</p>
-              <input class="infectionRate" onchange="update()" type="number" value="0.7" step="0.01" min="0" max="1">
-              <p>Morbidity Rate (0-1) </p>
-              <input class="morbidityRate" onchange="update()" type="number" value="0.03" step="0.001" min="0" max="1">
-              <p>Test and Trace: Test Symptomatic Rate (0-1)</p>
-              <input class="testAndTraceRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
-              <p>Symptomatic Rate (0-1)</p>
-              <input class="symptomaticRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
+                <input class="morbidityRate" onchange="update()" type="number" value="0.03" step="0.001" min="0" max="1">
+                <p onmouseover="showText('basic4info', 'basicPanel')">Test and Trace: Test Symptomatic Rate (0-1)</p>
+                <p id="basic4info"></p>
+                <input class="testAndTraceRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
+                <p class="underline "onmouseover="showText('basic5info', 'basicPanel')">Symptomatic Rate (0-1)</p>
+                <p id="basic5info" style="display: none;"><em>Symptomatic Rate</em> refers to the probability that an infected person either shows visible symptoms as opposed to being an "asymptomatic carrier". CDC director, Dr. Redfield, estimates, as of April 2020, that 25% of people with COVID-19 may be asymptomatic.  The director of the National Institute of Allergy and Infectious Diseases director, Dr. Fauci, estimates that 25-50% of people with COVID-19 may be asymptomatic.  However, Medical News Today reported that it is possible that only 1-3% of people with COVID-19 are "asymptomatic carriers."</br>
+                <a href="https://www.thecut.com/2020/04/how-many-people-with-the-coronavirus-are-asymptomatic.html">The Cut Article</a><br/>
+                <a href="https://www.medicalnewstoday.com/articles/covid-19-study-estimates-rate-of-silent-transmission#Silent-transmission">Medical News Today Article</a></p>
+                <input class="symptomaticRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
               </div>
-              <div style="width: 50%; float: right; overflow: auto;" class="hoverShow"><p id="basicPanel" style="position: absolute;"></p></div>
+              <div class="infoColumn"><p id="basicPanel" class="infoP"><em>Information will appear here when a variable with a dotted underline has the mouse over it</em></p>
+              </div>
             </div>
             <div id="Advanced" class="tabcontent" >
-            <div style="width: 50%; float: left">
-              <p>Symptom Start Time (1+) </p>
-              <input class="symptomStartTime" onchange="update()" type="number" value="50" step="1" min="1" max="1000">
-              <p>Recover Time (1+) </p>
-              <input class="recoverTime" onchange="update()" type="number" value="100" step="1" min="1" max="1000">
-              <p>Number of People (1+)</p>
-              <input class="numStartingBalls" onchange="update()" type="number" value="400" step="1" min="1" max="1000">
-              <p>Initial Num Sick People (1+)</p>
-              <input class="startingSickBalls" onchange="update()" type="number" value="2" step="1" min="1" max="1000">
-              <p>Speed (0+)</p>
-              <input class="ballSpeed" onchange="update()" type="number" value="12" step="1" min="1" max="30">
-            </div>
-            <div style="width: 50%; float: right">
-            </div>
+              <div style="width: 50%; float: left">
+                <p class="underline" onmouseover="showText('advanced1info', 'advancedPanel')">Symptom Start Time (1+) </p>
+                <p id="advanced1info" style="display: none;"><em>Symptom Start Time</em> is how long after contracting an infection the person starts having visible symptoms.Medical News Today reported on March 17, 2020 that according to a recent study, symptoms start appearing after an incubation period 2-14 days.  The incubation period is the time separating transmission and the display of symptoms.<br/>
+                <a href="https://www.medicalnewstoday.com/articles/covid-19-study-estimates-rate-of-silent-transmission">Medical News Today Article</a></p>
+                <input class="symptomStartTime" onchange="update()" type="number" value="50" step="1" min="1" max="1000">
+                <p>Recover Time (1+) </p>
+                <input class="recoverTime" onchange="update()" type="number" value="100" step="1" min="1" max="1000">
+                <p>Number of People (1+)</p>
+                <input class="numStartingBalls" onchange="update()" type="number" value="400" step="1" min="1" max="1000">
+                <p>Initial Num Sick People (1+)</p>
+                <input class="startingSickBalls" onchange="update()" type="number" value="2" step="1" min="1" max="1000">
+                <p>Speed (0+)</p>
+               <input class="ballSpeed" onchange="update()" type="number" value="12" step="1" min="1" max="30">
+              </div>
+              <div class="infoColumn"><p id="advancedPanel" class="infoP"></p>
+              </div>
             </div>
             <div id="Communities" class="tabcontent">
-            <div style="width: 50%; float: left">
+              <div style="width: 50%; float: left">
               <p>Communities: Number (1+) </p>
               <input class="numCommunities" onchange="update()" type="number" value="1" step="1" min="1" max="100">
               <p>Communities: Switch Rate </p>
               <input class="switchCommunityRate" onchange="update()" type="number" value="0.005" step="0.001" min="0" max="1">
-            </div>
-            <div style="width: 50%; float: right">
-            </div>
+              </div>
+              <div class="infoColumn"><p id="communitiesPanel" class="infoP"></p>
+              </div>
             </div>
             <div id="Market" class="tabcontent">
-            <div style="width: 50%; float: left">
+              <div style="width: 50%; float: left">
+                <p style="color: green">By changing <em>Market: Exists</em> to 1, a green box will appear representing a supermarket where balls go to shop. The rate at which they go to the store and how long they spend can be controlled below. <br/> Click Reset to make the changes show up</p>
               <p>Market: Exists (0/1) </p>
               <input class="hasMarketBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
               <p>Market: Shopping Rate (0-1) </p>
               <input class="marketFrequency" onchange="update()" type="number" value="0.001" step="0.001" min="0" max="1">
               <p>Market: Shopping Time (1+) </p>
               <input class="marketDuration" onchange="update()" type="number" value="20" step="1" min="1" max="1000">
-            </div>
-            <div style="width: 50%; float: left"></div>
+              </div>
+              <div class="infoColumn"><p id="marketPanel" class="infoP"></p></div>
             </div>
             <div id="Hospital" class="tabcontent">
-            <div style="width: 50%; float: left">
-              <p>Hospital: Exists (0/1)</p>
-              <input class="hasHospitalBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
-              <p>Hospital: Admission Rate (0-1)</p>
-              <input class="hospitalizationRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
-            </div>
-            <div style="width: 50%; float: right"></div>
+              <div style="width: 50%; float: left">
+                <p style="color: green">By changing Hospital: Exists to 1, a red box representing a hospital will appear in the simulation. Infected balls will be admitted to the hospital at a rate equal to the Admission Rate</p>
+                <p>Hospital: Exists (0/1)</p>
+                <input class="hasHospitalBox" onchange="update()" type="number" value="0" step="1" min="0" max="1">
+                <p>Hospital: Admission Rate (0-1)</p>
+                <input class="hospitalizationRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
+              </div>
+              <div class="infoColumn"><p id="hospitalPanel" class="infoP"></p></div>
             </div>
             <div id="TestTrace" class="tabcontent">
-            <div style="width: 50%; float: left">
+              <div style="width: 50%; float: left">
               <p>Test and Trace: Recursive Rate (0-1)</p>
               <input class="testAndTraceInceptionRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
               <p>Test and Trace: Test Number of Contacts (0-25)</p>
               <input class="testAndTraceNumContacts" onchange="update()" type="number" value="10" step="1" min="0" max="25">
               <p>Test and Trace: Quarantine Mode: 0=At Home, 1=In Hospital </p>
               <input class="testAndTraceQuarantineMode" onchange="update()" type="number" value="0" step="1" min="0" max="1">
+              </div>
+              <div class="infoColumn"><p id="testTracePanel" class="infoP"></p></div>
             </div>
-          <!--<div style="width: 50%; float: right"></div>-->
-          </div>
           </div>
         </div>
-        <button onclick="pause()"> Play/Pause</button>
+        <button class="btn" onclick="pause()"> Play/Pause</button>
 
         <button onclick="reset()"> Reset</button>
 
