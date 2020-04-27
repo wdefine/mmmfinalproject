@@ -44,6 +44,7 @@
   padding: 6px 12px;
   border: 1px solid #ccc;
   border-top: none;
+  height: 550px;
   overflow: hidden;
 }
 
@@ -57,12 +58,11 @@
     color: black;
     font-size: 200%;
     font-style: normal;
-    margin: 1px;
-    border: 1px;
+    
   }
 
   #balls {
-    margin-top: 5px;
+    /*margin-top: 5px;*/
   }
 
   #myCanvas {
@@ -151,6 +151,9 @@
   border-radius: 50%;
   background-color: yellow;
   display: inline-block;
+}
+.tabpanel{
+  height: 600px;
 }
 .redDot {
   height: 8px;
@@ -245,7 +248,7 @@
 </head>
 <body style="text-align: center">
   <section style="padding-left: 15px; padding-right: 15px;">
-    <div id="title"><p id="balls" style="font-size: 15pt">Covid19 Simulator</p><br/></div>
+    <div id="title"><p id="balls" style="font-size: 15pt">Covid19 Simulator</p></div>
     <p>Click through the tabs to the right and feel free to change the variables to see how the spread of diseases (like COVID-19) change based on several factors. See how the graph of disease spread changes over time based on your input!<br/>
     Hover over variable names with dotted underlines to see a description of the variable in the context of COVID-19</p>
     <br/>
@@ -256,21 +259,22 @@
 
   <!--This div outlines a simulation object. You can place as many of these in html as you like.
       Each sim must have a unique id, and each chart and canvas element must have a unique id.-->
-  <div class="flex-container">
+  <div class="flex-container" id="sim1">
     
     <!--<div class="ct-chart ct-golden-section chart" id="chart1"></div>-->
 
     <div class= "sim flex-container2" id="sim1"style="overflow: auto; position: absolute;">
       <div class="leftSide" style="position: relative;">
+        
+        <div>
+          <canvas onclick="pause()" class="canvas" id="canvas1" width="650px" height="592px" style="border:1px solid black;"></canvas>
+        </div>
         <div class="dots">
           <span class="blueDot"></span>&nbsp; Uninfected &emsp;
           <span class="yellowDot"></span>&nbsp; Infected: No Symptoms &emsp;
           <span class="redDot"></span>&nbsp; Infected: Symptoms &emsp;
           <span class="greenDot"></span>&nbsp; Recovered &emsp;
           <span class="blackDot"></span>&nbsp; Dead &emsp;
-        </div>
-        <div>
-          <canvas onclick="pause()" class="canvas" id="canvas1" width="650px" height="600px" style="border:1px solid black;"></canvas>
         </div>
       </div>
       <div class="rightColumn" style="position: relative;">
@@ -387,8 +391,12 @@
 
         <button onclick="reset()"> Reset</button>
 
-        <div class="ct-chart ct-golden-section chart" id="chart1"></div>
-        <div style="float: left; display: flex; left; padding-left: 5px;">
+
+        
+       
+      </div>
+      <div class="ct-chart ct-golden-section chart" id="chart1" display></div>
+     <div style="float: left; display: flex; left; padding-left: 5px;">
           <div style="vertical-align: text-top;">
             <span class="blueLine"></span> &nbsp; Healthy &emsp;
             <span class="orangeLine"></span> &nbsp; Sick &emsp;
@@ -396,8 +404,8 @@
             <span class="blackLine"></span>&nbsp; Dead &emsp;
           </div>
         </div>
-      </div>
     </div>
+    
   </div>
   <script type="text/javascript">
     //Tabs 
