@@ -84,7 +84,6 @@
 
   .chart {
       height: 200px;
-      width: 600px;
       align-content: center;
   }
 
@@ -94,16 +93,6 @@
 
   input{
 
-  }
-
-  .flex-container {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-  .flex-container2{
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
   }
 
   .ct-series-a .ct-line,
@@ -247,6 +236,24 @@
   .graphEle{
     bottom: 0;
   }
+  .flex-container {
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex-wrap: nowrap;
+    width:1362px;
+    margin: auto;
+  }
+  .flex-container2 {
+    padding-left: 10px;
+    padding-right: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
 
 
   </style>
@@ -254,21 +261,14 @@
 <body style="text-align: center">
   <section style="padding-left: 15px; padding-right: 15px;">
     <div id="title"><p id="balls" style="font-size: 15pt">Covid19 Simulator</p></div>
-    <p>Click through the tabs to the right and feel free to change the variables to see how the spread of diseases (like COVID-19) change based on several factors. See how the graph of disease spread changes over time based on your input!<br/>
-    Hover over variable names with dotted underlines to see a description of the variable in the context of COVID-19</p>
-    <br/>
-    <i>Note: This simulator is intended for interactive learning only and is not a true simulation of the real world. This tool should not be used to influence opinion or personal actions regarding the COVID-19 outbreak and should be seen as a fun and interactive tool only.</i>
-    <p>All variables will automatically reflect their changes immediately except those with an asterisk (*) next to them, which will require clicking the <b>Reset</b> button</p>
-    <div><p id="balls" style="font-size: 12pt">Click on sim to run/pause</p><br/></div>
+    <p>Click through the tabs to the right and feel free to change the variables to see how the spread of diseases (like COVID-19) change based on several factors.</p>
   </section>
 
   <!--This div outlines a simulation object. You can place as many of these in html as you like.
       Each sim must have a unique id, and each chart and canvas element must have a unique id.-->
   <div class="sim flex-container" id="sim1">
     
-    <!--<div class="ct-chart ct-golden-section chart" id="chart1"></div>-->
-
-    <div class= "flex-container2" style="overflow: auto; position: absolute;">
+    <div class="flex-container2"><!--Top Part-->
       <div class="leftSide" style="position: relative;">       
         <div>
           <canvas onclick="pause()" class="canvas" id="canvas1" width="650px" height="592px" style="border:1px solid black;"></canvas>
@@ -280,15 +280,6 @@
           <span class="greenDot"></span>&nbsp; Recovered &emsp;
           <span class="blackDot"></span>&nbsp; Dead &emsp;
         </div>
-        <div class="ct-chart ct-golden-section chart" id="chart1" display></div>
-          <div style="float: left; display: flex; left; padding-left: 5px;">
-            <div style="vertical-align: text-top;">
-              <span class="blueLine"></span> &nbsp; Healthy &emsp;
-              <span class="orangeLine"></span> &nbsp; Sick &emsp;
-              <span class="greenLine"></span>&nbsp; Recovered &emsp;
-              <span class="blackLine"></span>&nbsp; Dead &emsp;
-            </div>
-          </div>
       </div>
       <div class="rightColumn" style="position: relative;">
         <div class="tabpanel">
@@ -352,7 +343,7 @@
                 <p>Initial Num Sick People (1+) *</p>
                 <input class="startingSickBalls" onchange="update()" type="number" value="2" step="1" min="1" max="1000">
                 <p>Speed (0+) *</p>
-               <input class="ballSpeed" onchange="update()" type="number" value="12" step="1" min="1" max="30">
+                <input class="ballSpeed" onchange="update()" type="number" value="12" step="1" min="1" max="30">
               </div>
               <div class="infoColumn"><p id="advancedPanel" class="infoP"></p>
               </div>
@@ -403,12 +394,27 @@
           </div>
         </div>
         <button class="btn" onclick="pause()"> Play/Pause</button>
-
+  
         <button onclick="reset()"> Reset</button>       
       </div>
     </div>
-  </div>
 
+    <div id="chartDiv"><!--Bottom part-->
+      <div class="ct-chart ct-golden-section chart" width="100%" id="chart1" display></div>
+      <div>
+        <div style="vertical-align: text-top;">
+          <span class="blueLine"></span> &nbsp; Healthy &emsp;
+          <span class="orangeLine"></span> &nbsp; Sick &emsp;
+          <span class="greenLine"></span>&nbsp; Recovered &emsp;
+          <span class="blackLine"></span>&nbsp; Dead &emsp;
+        </div>
+      </div>
+      <br />
+      <i>Note: This simulator is intended for interactive learning only and is not a true simulation of the real world. This tool should not be used to influence opinion or personal actions regarding the COVID-19 outbreak and should be seen as a fun and interactive tool only.</i><br />
+      <i>Note: All variables will automatically reflect their changes immediately except those with an asterisk (*) next to them, which will require clicking the <b>Reset</b> button</i><br />
+      <i>Click on sim to run/pause<br/></i>
+    </div>
+  </div>
   <script type="text/javascript">
     //Tabs 
     document.getElementById("Basic").style.display = "block";
@@ -417,7 +423,6 @@
       text = document.getElementById(info).innerHTML;
       panel = document.getElementById(display);
       panel.innerHTML = text;
-      console.log("Hover");
     }
     function openCity(evt, tabName) {
       // Declare all variables

@@ -79,17 +79,7 @@ class Simulation {
                 type: Chartist.FixedScaleAxis,
                 divisor:10,
                 ticks:this.ylabels,
-            },/*
-            axisX:{
-                labelInterpolationFnc: function skipLabels(value, index, labels) {
-                    if(labels.length > 10) {
-                        return index === labels.length-1 ? value : null;
-                        //return (index % Math.floor(labels.length/10))  === 0 ? value : null;
-                    } else {
-                        //return value;
-                    }
-                  }
-            },*/
+            },
             showPoint: false,
             fullWidth: true,
           });
