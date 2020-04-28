@@ -383,7 +383,7 @@
             <div id="TestTrace" class="tabcontent">
               <div style="width: 50%; float: left">
               <p class="underline" onmouseover="showText('TestTrace1info', 'testTracePanel')">Test and Trace: Test Number of Contacts (0-25)</p>
-              <p id="TestTrace1info">The <em>Test Number of Contacts</em> parameter defines the number of recent contacts that will be tested as a result of contact tracing after a ball becomes infected. Each ball in our simulation keeps a record of its last 25 contacts so that if it becomes infected, its recent contacts can be tested through contact tracing.</p>
+              <p id="TestTrace1info" style="display: none;">The <em>Test Number of Contacts</em> parameter defines the number of recent contacts that will be tested as a result of contact tracing after a ball becomes infected. Each ball in our simulation keeps a record of its last 25 contacts so that if it becomes infected, its recent contacts can be tested through contact tracing.</p>
               <input class="testAndTraceNumContacts" onchange="update()" type="number" value="10" step="1" min="0" max="25">
               <p>Test and Trace: Quarantine Mode: 0=At Home, 1=In Hospital </p>
               <input class="testAndTraceQuarantineMode" onchange="update()" type="number" value="0" step="1" min="0" max="1">
