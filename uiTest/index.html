@@ -258,7 +258,7 @@
     Hover over variable names with dotted underlines to see a description of the variable in the context of COVID-19</p>
     <br/>
     <i>Note: This simulator is intended for interactive learning only and is not a true simulation of the real world. This tool should not be used to influence opinion or personal actions regarding the COVID-19 outbreak and should be seen as a fun and interactive tool only.</i>
-    <p>Make sure to click <b>Reset</b> when you've changed a variable to see the changes in the simulation</p>
+    <p>All variables will automatically reflect their changes immediately except those with an asterisk (*) next to them, which will require clicking the <b>Reset</b> button</p>
     <div><p id="balls" style="font-size: 12pt">Click on sim to run/pause</p><br/></div>
   </section>
 
@@ -293,12 +293,12 @@
       <div class="rightColumn" style="position: relative;">
         <div class="tabpanel">
           <div class="tab">
-          <button class="tablinks" onClick="openCity(event, 'Basic')" id="basicTab">Basic</button>
-          <button class="tablinks" onclick="openCity(event, 'Market')">Market</button>
-          <button class="tablinks" onclick="openCity(event, 'Hospital')">Hospital</button>
-          <button class="tablinks" onclick="openCity(event, 'TestTrace')">Test and Trace</button>
-          <button class="tablinks" onclick="openCity(event, 'Communities')">Communities</button>
-          <button class="tablinks" onclick="openCity(event, 'Advanced')">Advanced</button>
+            <button class="tablinks" onClick="openCity(event, 'Basic')" id="basicTab">Basic</button>
+            <button class="tablinks" onclick="openCity(event, 'Market')">Market</button>
+            <button class="tablinks" onclick="openCity(event, 'Hospital')">Hospital</button>
+            <button class="tablinks" onclick="openCity(event, 'TestTrace')">Test and Trace</button>
+            <button class="tablinks" onclick="openCity(event, 'Communities')">Communities</button>
+            <button class="tablinks" onclick="openCity(event, 'Advanced')">Advanced</button>
           </div>
           <div>
             <div id="Basic" class="tabcontent">
@@ -306,7 +306,7 @@
                 <div>
                   <p class="underline" onmouseover="showText('basic1info', 'basicPanel')">Social Distancing Compliance (0-1) </p>
                   <p class="tooltiptext" id="basic1info" style="display: none;">
-                  Social distancing is defined by the CDC as staying at least 6 feet from other people, and avoiding gatherings.  This is an effective strategy to minimize the spread of COVID-19 because the spread of COVID-19 occurs when pathogens are transmitted by respiratory droplets.  Respiratory droplets can spread as far as 6 feet from their source, so when individuals are in close contact with one another, they risk spreading the disease through talking, coughing, or sneezing in particular. <br/><a href="https://www.cdc.gov/coronavirus/2019-ncov/prevent-getting-sick/social-distancing.html">CDC.gov</a>
+                  <em>Social distancing compliance</em> is how seriously people adhere to Socail Distancing, which is defined by the CDC as staying at least 6 feet from other people, and avoiding gatherings.  This is an effective strategy to minimize the spread of COVID-19 because the spread of COVID-19 occurs when pathogens are transmitted by respiratory droplets.  Respiratory droplets can spread as far as 6 feet from their source, so when individuals are in close contact with one another, they risk spreading the disease through talking, coughing, or sneezing in particular. <br/><a href="https://www.cdc.gov/coronavirus/2019-ncov/prevent-getting-sick/social-distancing.html">CDC.gov</a>
                   </p>
                   <input class="socialDistanceCompliance" onchange="update()" type="number" value="0.2" step="0.01" min="0" max="1">
                 </div>
@@ -320,13 +320,15 @@
                 </div>
                 <input class="infectionRate" onchange="update()" type="number" value="0.7" step="0.01" min="0" max="1">
                 <p class="underline "onmouseover="showText('basic3info', 'basicPanel')">Fatality Rate (0-1) </p>
-                <p id="basic3info" style="display: none;font-size: 8">Fatality rate is the proportion of infected people that ultimately die from a disease. Given that COVID-19 is relatively new, the case fatality rate is not accurate, and the reported rates are likely too high. This is because COVID-19 is not easy to identify or diagnose, and only those that are very sick are being identified as COVID-19 positive for the most part. This makes the calculated number of infections lower than it actually is, and in turn is  inflating the death rate. There are other factors that affect the case fatality rate, such as the age of a population and the strength of health systems.
+                <p id="basic3info" style="display: none;font-size: 8"><em>Fatality Rate</em> is the proportion of infected people that ultimately die from a disease. Given that COVID-19 is relatively new, the case fatality rate is not accurate, and the reported rates are likely too high. This is because COVID-19 is not easy to identify or diagnose, and only those that are very sick are being identified as COVID-19 positive for the most part. This makes the calculated number of infections lower than it actually is, and in turn is  inflating the death rate. There are other factors that affect the case fatality rate, such as the age of a population and the strength of health systems.
                 <a href="https://www.npr.org/sections/goatsandsoda/2020/03/27/821958435/why-death-rates-from-coronavirus-can-be-deceiving">NPR Article</a><br/>
                 <a href="https://www.bbc.com/future/article/20200401-coronavirus-why-death-and-mortality-rates-differ">BBC Article</a>
                 </p>
                 <input class="morbidityRate" onchange="update()" type="number" value="0.03" step="0.001" min="0" max="1">
-                <p onmouseover="showText('basic4info', 'basicPanel')">Test and Trace: Test Symptomatic Rate (0-1)</p>
-                <p id="basic4info"></p>
+                <p class="underline" onmouseover="showText('basic4info', 'basicPanel')">Test and Trace: Test Symptomatic Rate (0-1)</p>
+                <p id="basic4info" style="display: none;">The <em>Test Symptomatic Rate</em> defines the percent of people in our simulation that are tested when they become symptomatic, and subsequently contact traced if they are infected.  According to Forbes, more than 260 million of the nearly 330 citizens in the United states have an Android or iPhone smartphone.  This means that in the United States, if all of these smartphone users downloaded the contact tracing app being developed by Apple and Google, nearly 80% of citizens would be participating in this advanced Bluetooth-based contact tracing platform.  This type of participation in contact tracing could increase the test symptomatic rate by helping to locate people that have been exposed to the virus.<br/>
+                <a href="https://www.forbes.com/sites/tjmccue/2020/04/24/iphone-and-android-app-for-covid-19-contact-tracing-will-be-strictly-opt-in-only/#c52528a5a322">Forbes Link</a><br/>
+                <a href="https://www.apple.com/newsroom/2020/04/apple-and-google-partner-on-covid-19-contact-tracing-technology/">Apple Link</a></p>
                 <input class="testAndTraceRate" onchange="update()" type="number" value="0" step="0.01" min="0" max="1">
                 <p class="underline "onmouseover="showText('basic5info', 'basicPanel')">Symptomatic Rate (0-1)</p>
                 <p id="basic5info" style="display: none;"><em>Symptomatic Rate</em> refers to the probability that an infected person either shows visible symptoms as opposed to being an "asymptomatic carrier". CDC director, Dr. Redfield, estimates, as of April 2020, that 25% of people with COVID-19 may be asymptomatic.  The director of the National Institute of Allergy and Infectious Diseases director, Dr. Fauci, estimates that 25-50% of people with COVID-19 may be asymptomatic.  However, Medical News Today reported that it is possible that only 1-3% of people with COVID-19 are "asymptomatic carriers."</br>
@@ -357,6 +359,7 @@
             </div>
             <div id="Communities" class="tabcontent">
               <div style="width: 50%; float: left">
+                <p style="color: green">Increasing the number communities will create seperate boxes where interactions only occur between communities when a ball moves between the communities, which is controlled by the switch rate</p>
               <p>Communities: Number (1+) *</p>
               <input class="numCommunities" onchange="update()" type="number" value="1" step="1" min="1" max="100">
               <p>Communities: Switch Rate </p>
@@ -389,9 +392,8 @@
             </div>
             <div id="TestTrace" class="tabcontent">
               <div style="width: 50%; float: left">
-              <p>Test and Trace: Recursive Rate (0-1)</p>
-              <input class="testAndTraceInceptionRate" onchange="update()" type="number" value="1" step="0.01" min="0" max="1">
-              <p>Test and Trace: Test Number of Contacts (0-25)</p>
+              <p class="underline" onmouseover="showText('TestTrace1info', 'testTracePanel')">Test and Trace: Test Number of Contacts (0-25)</p>
+              <p id="TestTrace1info">The <em>Test Number of Contacts</em> parameter defines the number of recent contacts that will be tested as a result of contact tracing after a ball becomes infected. Each ball in our simulation keeps a record of its last 25 contacts so that if it becomes infected, its recent contacts can be tested through contact tracing.</p>
               <input class="testAndTraceNumContacts" onchange="update()" type="number" value="10" step="1" min="0" max="25">
               <p>Test and Trace: Quarantine Mode: 0=At Home, 1=In Hospital </p>
               <input class="testAndTraceQuarantineMode" onchange="update()" type="number" value="0" step="1" min="0" max="1">
