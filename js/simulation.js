@@ -216,6 +216,7 @@ class Simulation {
 
     reset(){
         this.applyControls();
+        console.log(this.testAndTraceQuarantineMode);
         //init timing
         this.time = 0;
         this.done = false;
@@ -278,7 +279,7 @@ class Simulation {
     updateBalls()
     {
         for(let i=0;i<this.ballArray.length;i++){
-            this.ballArray[i].updateStatus(this.time, this.morbidityRate, this.hospitalizationRate);
+            this.ballArray[i].updateStatus(this.time, this.morbidityRate, this.hospitalizationRate, this.testAndTraceRate);
         }
     }
 
